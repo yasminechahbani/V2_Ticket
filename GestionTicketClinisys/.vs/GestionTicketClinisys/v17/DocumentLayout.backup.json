@@ -1,0 +1,390 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|c:\\users\\user\\desktop\\workspace\\intership\\gestionticketclinisys\\gestionticketclinisys\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|solutionrelative:gestionticketclinisys\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|c:\\users\\user\\desktop\\workspace\\intership\\gestionticketclinisys\\gestionticketclinisys\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|solutionrelative:gestionticketclinisys\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|c:\\users\\user\\desktop\\workspace\\intership\\gestionticketclinisys\\gestionticketclinisys\\controllers\\clientscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|solutionrelative:gestionticketclinisys\\controllers\\clientscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|c:\\users\\user\\desktop\\workspace\\intership\\gestionticketclinisys\\gestionticketclinisys\\wwwroot\\css\\menu.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|solutionrelative:gestionticketclinisys\\wwwroot\\css\\menu.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|c:\\users\\user\\desktop\\workspace\\intership\\gestionticketclinisys\\gestionticketclinisys\\controllers\\modulescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|solutionrelative:gestionticketclinisys\\controllers\\modulescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|c:\\users\\user\\desktop\\workspace\\intership\\gestionticketclinisys\\gestionticketclinisys\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|solutionrelative:gestionticketclinisys\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|c:\\users\\user\\desktop\\workspace\\intership\\gestionticketclinisys\\gestionticketclinisys\\controllers\\ticketscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|solutionrelative:gestionticketclinisys\\controllers\\ticketscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|c:\\users\\user\\desktop\\workspace\\intership\\gestionticketclinisys\\gestionticketclinisys\\views\\tickets\\gestiondemandes.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|solutionrelative:gestionticketclinisys\\views\\tickets\\gestiondemandes.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|c:\\users\\user\\desktop\\workspace\\intership\\gestionticketclinisys\\gestionticketclinisys\\views\\_viewimports.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|solutionrelative:gestionticketclinisys\\views\\_viewimports.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|c:\\users\\user\\desktop\\workspace\\intership\\gestionticketclinisys\\gestionticketclinisys\\views\\shared\\_validationscriptspartial.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|solutionrelative:gestionticketclinisys\\views\\shared\\_validationscriptspartial.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|c:\\users\\user\\desktop\\workspace\\intership\\gestionticketclinisys\\gestionticketclinisys\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|solutionrelative:gestionticketclinisys\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|c:\\users\\user\\desktop\\workspace\\intership\\gestionticketclinisys\\gestionticketclinisys\\wwwroot\\css\\login.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|solutionrelative:gestionticketclinisys\\wwwroot\\css\\login.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|c:\\users\\user\\desktop\\workspace\\intership\\gestionticketclinisys\\gestionticketclinisys\\views\\shared\\error.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|solutionrelative:gestionticketclinisys\\views\\shared\\error.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|c:\\users\\user\\desktop\\workspace\\intership\\gestionticketclinisys\\gestionticketclinisys\\wwwroot\\favicon.ico||{177559E0-D141-11D0-92DF-00A0C9138C45}",
+      "RelativeMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|solutionrelative:gestionticketclinisys\\wwwroot\\favicon.ico||{177559E0-D141-11D0-92DF-00A0C9138C45}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|c:\\users\\user\\desktop\\workspace\\intership\\gestionticketclinisys\\gestionticketclinisys\\views\\tickets\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|solutionrelative:gestionticketclinisys\\views\\tickets\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|c:\\users\\user\\desktop\\workspace\\intership\\gestionticketclinisys\\gestionticketclinisys\\views\\clients\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|solutionrelative:gestionticketclinisys\\views\\clients\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|c:\\users\\user\\desktop\\workspace\\intership\\gestionticketclinisys\\gestionticketclinisys\\views\\tickets\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|solutionrelative:gestionticketclinisys\\views\\tickets\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|c:\\users\\user\\desktop\\workspace\\intership\\gestionticketclinisys\\gestionticketclinisys\\views\\tickets\\delete.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|solutionrelative:gestionticketclinisys\\views\\tickets\\delete.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|c:\\users\\user\\desktop\\workspace\\intership\\gestionticketclinisys\\gestionticketclinisys\\controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|solutionrelative:gestionticketclinisys\\controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|c:\\users\\user\\desktop\\workspace\\intership\\gestionticketclinisys\\gestionticketclinisys\\models\\enums\\ticketstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|solutionrelative:gestionticketclinisys\\models\\enums\\ticketstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|c:\\users\\user\\desktop\\workspace\\intership\\gestionticketclinisys\\gestionticketclinisys\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|solutionrelative:gestionticketclinisys\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|c:\\users\\user\\desktop\\workspace\\intership\\gestionticketclinisys\\gestionticketclinisys\\models\\team.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|solutionrelative:gestionticketclinisys\\models\\team.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|c:\\users\\user\\desktop\\workspace\\intership\\gestionticketclinisys\\gestionticketclinisys\\views\\teams\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{BEF20E34-465B-4850-A433-1C940D2C758B}|GestionTicketClinisys\\GestionTicketClinisys.csproj|solutionrelative:gestionticketclinisys\\views\\teams\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 5,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "TicketsController.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Controllers\\TicketsController.cs",
+              "RelativeDocumentMoniker": "GestionTicketClinisys\\Controllers\\TicketsController.cs",
+              "ToolTip": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Controllers\\TicketsController.cs",
+              "RelativeToolTip": "GestionTicketClinisys\\Controllers\\TicketsController.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAAABsAAAAnAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-02T13:21:09.529Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "GestionDemandes.cshtml",
+              "DocumentMoniker": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Views\\Tickets\\GestionDemandes.cshtml",
+              "RelativeDocumentMoniker": "GestionTicketClinisys\\Views\\Tickets\\GestionDemandes.cshtml",
+              "ToolTip": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Views\\Tickets\\GestionDemandes.cshtml",
+              "RelativeToolTip": "GestionTicketClinisys\\Views\\Tickets\\GestionDemandes.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEkAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-07-04T09:50:07.527Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ClientsController.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Controllers\\ClientsController.cs",
+              "RelativeDocumentMoniker": "GestionTicketClinisys\\Controllers\\ClientsController.cs",
+              "ToolTip": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Controllers\\ClientsController.cs",
+              "RelativeToolTip": "GestionTicketClinisys\\Controllers\\ClientsController.cs",
+              "ViewState": "AgIAAHkAAAAAAAAAAAAiwIYAAAAfAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-02T12:59:35.942Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Views\\Home\\Index.cshtml",
+              "RelativeDocumentMoniker": "GestionTicketClinisys\\Views\\Home\\Index.cshtml",
+              "ToolTip": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Views\\Home\\Index.cshtml",
+              "RelativeToolTip": "GestionTicketClinisys\\Views\\Home\\Index.cshtml",
+              "ViewState": "AgIAAA4AAAAAAAAAAAAAAAUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-07-04T07:31:20.645Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "ModulesController.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Controllers\\ModulesController.cs",
+              "RelativeDocumentMoniker": "GestionTicketClinisys\\Controllers\\ModulesController.cs",
+              "ToolTip": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Controllers\\ModulesController.cs",
+              "RelativeToolTip": "GestionTicketClinisys\\Controllers\\ModulesController.cs",
+              "ViewState": "AgIAACwAAAAAAAAAAAAwwAwAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-02T09:57:07.214Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Program.cs",
+              "RelativeDocumentMoniker": "GestionTicketClinisys\\Program.cs",
+              "ToolTip": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Program.cs",
+              "RelativeToolTip": "GestionTicketClinisys\\Program.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAABYAAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-04T08:32:12.951Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Menu.css",
+              "DocumentMoniker": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\wwwroot\\css\\Menu.css",
+              "RelativeDocumentMoniker": "GestionTicketClinisys\\wwwroot\\css\\Menu.css",
+              "ToolTip": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\wwwroot\\css\\Menu.css",
+              "RelativeToolTip": "GestionTicketClinisys\\wwwroot\\css\\Menu.css",
+              "ViewState": "AgIAAA8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2025-07-04T11:20:11.371Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "HomeController.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Controllers\\HomeController.cs",
+              "RelativeDocumentMoniker": "GestionTicketClinisys\\Controllers\\HomeController.cs",
+              "ToolTip": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Controllers\\HomeController.cs",
+              "RelativeToolTip": "GestionTicketClinisys\\Controllers\\HomeController.cs",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAiwBUAAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-04T08:45:03.446Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "_ViewImports.cshtml",
+              "DocumentMoniker": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Views\\_ViewImports.cshtml",
+              "RelativeDocumentMoniker": "GestionTicketClinisys\\Views\\_ViewImports.cshtml",
+              "ToolTip": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Views\\_ViewImports.cshtml",
+              "RelativeToolTip": "GestionTicketClinisys\\Views\\_ViewImports.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-07-04T08:32:02.027Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "_ValidationScriptsPartial.cshtml",
+              "DocumentMoniker": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Views\\Shared\\_ValidationScriptsPartial.cshtml",
+              "RelativeDocumentMoniker": "GestionTicketClinisys\\Views\\Shared\\_ValidationScriptsPartial.cshtml",
+              "ToolTip": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Views\\Shared\\_ValidationScriptsPartial.cshtml",
+              "RelativeToolTip": "GestionTicketClinisys\\Views\\Shared\\_ValidationScriptsPartial.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-07-04T09:08:24.24Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "_Layout.cshtml",
+              "DocumentMoniker": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Views\\Shared\\_Layout.cshtml",
+              "RelativeDocumentMoniker": "GestionTicketClinisys\\Views\\Shared\\_Layout.cshtml",
+              "ToolTip": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Views\\Shared\\_Layout.cshtml",
+              "RelativeToolTip": "GestionTicketClinisys\\Views\\Shared\\_Layout.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-07-04T09:08:51.376Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "login.css",
+              "DocumentMoniker": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\wwwroot\\css\\login.css",
+              "RelativeDocumentMoniker": "GestionTicketClinisys\\wwwroot\\css\\login.css",
+              "ToolTip": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\wwwroot\\css\\login.css",
+              "RelativeToolTip": "GestionTicketClinisys\\wwwroot\\css\\login.css",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2025-07-04T08:49:23.624Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "favicon.ico - Icon [32x32, 32\u00A0bits, BMP]",
+              "DocumentMoniker": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\wwwroot\\favicon.ico",
+              "RelativeDocumentMoniker": "GestionTicketClinisys\\wwwroot\\favicon.ico",
+              "ToolTip": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\wwwroot\\favicon.ico - Icon [32x32, 32\u00A0bits, BMP]",
+              "RelativeToolTip": "GestionTicketClinisys\\wwwroot\\favicon.ico - Icon [32x32, 32\u00A0bits, BMP]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001525|",
+              "WhenOpened": "2025-07-04T08:32:27.022Z",
+              "EditorCaption": " - Icon [32x32, 32\u00A0bits, BMP]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "Error.cshtml",
+              "DocumentMoniker": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Views\\Shared\\Error.cshtml",
+              "RelativeDocumentMoniker": "GestionTicketClinisys\\Views\\Shared\\Error.cshtml",
+              "ToolTip": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Views\\Shared\\Error.cshtml",
+              "RelativeToolTip": "GestionTicketClinisys\\Views\\Shared\\Error.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAABkAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-07-04T09:08:28.907Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Views\\Tickets\\Index.cshtml",
+              "RelativeDocumentMoniker": "GestionTicketClinisys\\Views\\Tickets\\Index.cshtml",
+              "ToolTip": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Views\\Tickets\\Index.cshtml",
+              "RelativeToolTip": "GestionTicketClinisys\\Views\\Tickets\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-07-04T07:27:21.059Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "Create.cshtml",
+              "DocumentMoniker": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Views\\Clients\\Create.cshtml",
+              "RelativeDocumentMoniker": "GestionTicketClinisys\\Views\\Clients\\Create.cshtml",
+              "ToolTip": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Views\\Clients\\Create.cshtml",
+              "RelativeToolTip": "GestionTicketClinisys\\Views\\Clients\\Create.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAASAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-07-02T13:19:48.669Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "TicketStatus.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Models\\Enums\\TicketStatus.cs",
+              "RelativeDocumentMoniker": "GestionTicketClinisys\\Models\\Enums\\TicketStatus.cs",
+              "ToolTip": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Models\\Enums\\TicketStatus.cs",
+              "RelativeToolTip": "GestionTicketClinisys\\Models\\Enums\\TicketStatus.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-02T13:11:54.46Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "UsersController.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Controllers\\UsersController.cs",
+              "RelativeDocumentMoniker": "GestionTicketClinisys\\Controllers\\UsersController.cs",
+              "ToolTip": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Controllers\\UsersController.cs",
+              "RelativeToolTip": "GestionTicketClinisys\\Controllers\\UsersController.cs",
+              "ViewState": "AgIAABMAAAAAAAAAAAAgwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-02T09:57:33.604Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "User.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Models\\User.cs",
+              "RelativeDocumentMoniker": "GestionTicketClinisys\\Models\\User.cs",
+              "ToolTip": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Models\\User.cs",
+              "RelativeToolTip": "GestionTicketClinisys\\Models\\User.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAABYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-02T08:38:29.751Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "Delete.cshtml",
+              "DocumentMoniker": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Views\\Tickets\\Delete.cshtml",
+              "RelativeDocumentMoniker": "GestionTicketClinisys\\Views\\Tickets\\Delete.cshtml",
+              "ToolTip": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Views\\Tickets\\Delete.cshtml",
+              "RelativeToolTip": "GestionTicketClinisys\\Views\\Tickets\\Delete.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-07-02T13:02:30.678Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "Create.cshtml",
+              "DocumentMoniker": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Views\\Tickets\\Create.cshtml",
+              "RelativeDocumentMoniker": "GestionTicketClinisys\\Views\\Tickets\\Create.cshtml",
+              "ToolTip": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Views\\Tickets\\Create.cshtml",
+              "RelativeToolTip": "GestionTicketClinisys\\Views\\Tickets\\Create.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAmAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-07-02T13:01:48.91Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "Team.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Models\\Team.cs",
+              "RelativeDocumentMoniker": "GestionTicketClinisys\\Models\\Team.cs",
+              "ToolTip": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Models\\Team.cs",
+              "RelativeToolTip": "GestionTicketClinisys\\Models\\Team.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-02T08:23:09.648Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "Create.cshtml",
+              "DocumentMoniker": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Views\\Teams\\Create.cshtml",
+              "RelativeDocumentMoniker": "GestionTicketClinisys\\Views\\Teams\\Create.cshtml",
+              "ToolTip": "C:\\Users\\USER\\Desktop\\WorkSpace\\intership\\GestionTicketClinisys\\GestionTicketClinisys\\Views\\Teams\\Create.cshtml",
+              "RelativeToolTip": "GestionTicketClinisys\\Views\\Teams\\Create.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-07-02T09:57:41.905Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
