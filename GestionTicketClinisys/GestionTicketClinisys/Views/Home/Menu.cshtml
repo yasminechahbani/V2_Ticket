@@ -74,12 +74,17 @@
 
     // Function to handle card clicks
     function handleCardClick(title) {
-        if (title === "Gestion des demandes") {
-            window.location.href = '/Tickets/GestionDemandes';
-        } else {
-            alert(`Clicked on: ${title}`);
+        switch(title) {
+            case "Gestion des demandes":
+                window.location.href = '/Tickets/GestionDemandes';
+                break;
+            case "Mes tâches":
+                window.location.href = '/MesTaches';
+                break;
+            default:
+                alert(`Clicked on: ${title}`);
+            // Add more cases as needed
         }
-        // Add your custom logic here
     }
 
     // Generate cards when page loads

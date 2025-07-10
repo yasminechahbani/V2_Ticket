@@ -18,23 +18,40 @@ namespace Ticketing
 
         public IConfiguration Configuration { get; }
 
-        // Cette méthode est appelée par le runtime pour ajouter des services au conteneur
         public void ConfigureServices(IServiceCollection services)
         {
-            // Ajout des deux contextes de base de données
+            // Database contexts
             services.AddDbContext<CliniSysDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            // Ajout des contrôleurs MVC
+            // Add session services
+            services.AddDistributedMemoryCache();
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(30); // Session timeout
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+                options.Cookie.Name = "GestionTicket.Session";
+            });
+
+            // Authentication
+            services.AddAuthentication("CookieAuth")
+                .AddCookie("CookieAuth", options =>
+                {
+                    options.LoginPath = "/Account/Login";
+                    options.LogoutPath = "/Account/Logout";
+                    options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+                });
+
+            services.AddAuthorization();
+
+            // MVC
             services.AddControllersWithViews();
-            
-            // Autres services...
         }
 
-        // Cette méthode est appelée par le runtime pour configurer le pipeline de requêtes HTTP
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -52,18 +69,24 @@ namespace Ticketing
 
             app.UseRouting();
 
-            // Décommenter si vous utilisez l'authentification
-            // app.UseAuthentication();
-            // app.UseAuthorization();
+            // Add session middleware BEFORE authentication
+            app.UseSession();
+            
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
+                // Custom route for MesTaches
+                endpoints.MapControllerRoute(
+                    name: "mestaches",
+                    pattern: "MesTaches",
+                    defaults: new { controller = "TaskItems", action = "MesTaches" });
+
+                // Default route
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
-                
-                // Décommenter si vous utilisez Razor Pages
-                // endpoints.MapRazorPages();
             });
         }
     }

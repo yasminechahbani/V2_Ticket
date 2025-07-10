@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><!DOCTYPE html>
+        <html lang="en">
+        <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Tasks Unit Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f5f7fa; color: #333; }
+        header { padding: 1rem; background: #007bff; color: white; display: flex; justify-content: space-between; align-items: center; }
+        .filters select { margin-left: 0.5rem; padding: 0.3rem; }
+        .cards { display: flex; gap: 1rem; padding: 1rem; flex-wrap: wrap; }
+        .card { background: white; flex: 1; min-width: 150px; padding: 1rem; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 0.5rem; }
+        .card .icon { font-size: 1.5rem; }
+        .card .count { font-weight: bold; font-size: 1.2rem; }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            padding: 0 1rem;
+            border-bottom: 2px solid #ddd;
+            background: white;
+        }
+        .tab {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .tab.active {
+            border-color: #007bff;
+            color: #0056b3;
+        }
+
+        /* Content sections */
+        .tab-content {
+            display: none;
+            padding: 1rem;
+            background: white;
+            margin: 1rem;
+            border-radius: 6px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Kanban */
+        .kanban {
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+        }
+        .kanban-column {
+            flex: 1;
+            min-width: 220px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 0.5rem;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+        .kanban-column h3 {
+            margin-top: 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .task-card {
+            background: white;
+            margin: 0.5rem 0;
+            padding: 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .task-card:hover {
+            transform: translateY(-2px);
+        }
+        .task-card .priority {
+            font-weight: bold;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            color: white;
+            font-size: 0.8rem;
+            display: inline-block;
+            margin-top: 0.5rem;
+        }
+        .priority-high { background: #dc3545; }
+        .priority-medium { background: #ffc107; color: #212529; }
+        .priority-low { background: #28a745; }
+        .task-card .due-date {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        .task-card .assignees {
+            display: flex;
+            gap: 0.3rem;
+            margin-top: 0.5rem;
+        }
+        .avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #007bff;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+
+        /* Gantt placeholder */
+        .gantt-placeholder {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 2rem 0;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        th, td {
+            padding: 0.75rem;
+            border: 1px solid #dee2e6;
+            text-align: left;
+        }
+        th {
+            background: #f1f3f5;
+            font-weight: 600;
+        }
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        .badge {
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            color: white;
+            font-size: 0.8rem;
+            display: inline-block;
+            text-align: center;
+            min-width: 80px;
+        }
+        .status-todo { background: #6c757d; }
+        .status-inprogress { background: #17a2b8; }
+        .status-review { background: #ffc107; color: #212529; }
+        .status-done { background: #28a745; }
+        .table-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .table-actions button {
+            padding: 0.3rem 0.6rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .view-btn { background: #007bff; color: white; }
+        .edit-btn { background: #6c757d; color: white; }
+        .search-bar {
+            padding: 1rem;
+            background: white;
+            margin: 1rem;
+            border-radius: 6px;
+            display: flex;
+            gap: 1rem;
+        }
+        .search-bar input {
+            padding: 0.5rem;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            flex: 1;
+        }
+        .search-bar button {
+            padding: 0.5rem 1rem;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Collaborators */
+        .collaborators {
+            background: white;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+        .collaborators h3 {
+            margin-top: 0;
+        }
+        .avatars {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .avatar-lg {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #007bff;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            position: relative;
+        }
+        .avatar-lg.online::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 10px;
+            height: 10px;
+            background: #28a745;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .cards {
+                flex-direction: column;
+            }
+            .kanban {
+                flex-direction: column;
+            }
+            .kanban-column {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>My Tasks</h1>
+    <div class="filters">
+        <label>Status:
+            <select>
+                <option>All</option>
+                <option>To Do</option>
+                <option>In Progress</option>
+                <option>In Review</option>
+                <option>Done</option>
+            </select>
+        </label>
+        <label>Priority:
+            <select>
+                <option>All</option>
+                <option>High</option>
+                <option>Medium</option>
+                <option>Low</option>
+            </select>
+        </label>
+    </div>
+</header>
+
+<section class="cards">
+    <div class="card">
+        <span class="icon">🔁</span>
+        <div>
+            <div class="count">12</div>
+            <div>Tasks Assigned</div>
+        </div>
+    </div>
+    <div class="card">
+        <span class="icon">✅</span>
+        <div>
+            <div class="count">5</div>
+            <div>Tasks Completed</div>
+        </div>
+    </div>
+    <div class="card">
+        <span class="icon">🚧</span>
+        <div>
+            <div class="count">4</div>
+            <div>In Progress</div>
+        </div>
+    </div>
+    <div class="card">
+        <span class="icon">⏳</span>
+        <div>
+            <div class="count">2</div>
+            <div>Pending Review</div>
+        </div>
+    </div>
+    <div class="card">
+        <span class="icon">🗓️</span>
+        <div>
+            <div class="count">3</div>
+            <div>Upcoming Deadlines</div>
+        </div>
+    </div>
+</section> 
+
+<!-- Tabs for Kanban, Gantt, Table -->
+
+<div class="tabs">
+    <div class="tab active" data-tab="kanban">Kanban Board</div>
+    <div class="tab" data-tab="gantt">Gantt View</div>
+    <div class="tab" data-tab="table">Task Table</div>
+</div>
+
+<!-- Tab contents -->
+
+<section id="kanban" class="tab-content active">
+    <div class="kanban">
+        <div class="kanban-column">
+            <h3>To Do</h3>
+            <div class="task-card">
+                <div>Design login page</div>
+                <div class="due-date">Due: 2025-07-10</div>
+                <span class="priority priority-high">High</span>
+                <div class="assignees">
+                    <div class="avatar" title="Alice">A</div>
+                    <div class="avatar" title="Bob">B</div>
+                </div>
+            </div>
+            <div class="task-card">
+                <div>Write API documentation</div>
+                <div class="due-date">Due: 2025-07-12</div>
+                <span class="priority priority-medium">Medium</span>
+                <div class="assignees">
+                    <div class="avatar" title="Charlie">C</div>
+                </div>
+            </div>
+            <div class="task-card">
+                <div>Update user onboarding flow</div>
+                <div class="due-date">Due: 2025-07-15</div>
+                <span class="priority priority-low">Low</span>
+                <div class="assignees">
+                    <div class="avatar" title="Alice">A</div>
+                </div>
+            </div>
+        </div>
+        <div class="kanban-column">
+            <h3>In Progress</h3>
+            <div class="task-card">
+                <div>Fix authentication bug #234</div>
+                <div class="due-date">Due: 2025-07-09</div>
+                <span class="priority priority-high">High</span>
+                <div class="assignees">
+                    <div class="avatar" title="Bob">B</div>
+                    <div class="avatar" title="Dana">D</div>
+                </div>
+            </div>
+            <div class="task-card">
+                <div>Implement search functionality</div>
+                <div class="due-date">Due: 2025-07-11</div>
+                <span class="priority priority-medium">Medium</span>
+                <div class="assignees">
+                    <div class="avatar" title="Charlie">C</div>
+                </div>
+            </div>
+        </div>
+        <div class="kanban-column">
+            <h3>In Review</h3>
+            <div class="task-card">
+                <div>Update user guide documentation</div>
+                <div class="due-date">Due: 2025-07-08</div>
+                <span class="priority priority-low">Low</span>
+                <div class="assignees">
+                    <div class="avatar" title="Alice">A</div>
+                </div>
+            </div>
+        </div>
+        <div class="kanban-column">
+            <h3>Done</h3>
+            <div class="task-card">
+                <div>Setup CI/CD pipeline</div>
+                <div class="due-date">Completed: 2025-07-05</div>
+                <span class="priority priority-medium">Medium</span>
+                <div class="assignees">
+                    <div class="avatar" title="Dana">D</div>
+                </div>
+            </div>
+            <div class="task-card">
+                <div>Database optimization</div>
+                <div class="due-date">Completed: 2025-07-03</div>
+                <span class="priority priority-high">High</span>
+                <div class="assignees">
+                    <div class="avatar" title="Bob">B</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="gantt" class="tab-content">
+    <div class="gantt-placeholder">
+        <h3>Timeline View (Coming Soon)</h3>
+        <p>This view will show your tasks on a timeline to help with scheduling and deadline management.</p>
+    </div>
+</section>
+
+<section id="table" class="tab-content">
+    <div class="search-bar">
+        <input type="text" placeholder="Search tasks...">
+        <button>Search</button>
+    </div>
+    <table>
+        <thead>
+        <tr>
+            <th>Task Title</th>
+            <th>Status</th>
+            <th>Due Date</th>
+            <th>Priority</th>
+            <th>Assigned To</th>
+            <th>Related Ticket</th>
+            <th>Team</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Design login page</td>
+            <td><span class="badge status-todo">To Do</span></td>
+            <td>2025-07-10</td>
+            <td><span class="priority priority-high">High</span></td>
+            <td>
+                <div class="avatars">
+                    <div class="avatar" title="Alice">A</div>
+                    <div class="avatar" title="Bob">B</div>
+                </div>
+            </td>
+            <td>#1234</td>
+            <td>Frontend</td>
+            <td>
+                <div class="table-actions">
+                    <button class="view-btn">View</button>
+                    <button class="edit-btn">Edit</button>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>Fix authentication bug #234</td>
+            <td><span class="badge status-inprogress">In Progress</span></td>
+            <td>2025-07-09</td>
+            <td><span class="priority priority-high">High</span></td>
+            <td>
+                <div class="avatars">
+                    <div class="avatar" title="Bob">B</div>
+                    <div class="avatar" title="Dana">D</div>
+                </div>
+            </td>
+            <td>#2345</td>
+            <td>Backend</td>
+            <td>
+                <div class="table-actions">
+                    <button class="view-btn">View</button>
+                    <button class="edit-btn">Edit</button>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>Write API documentation</td>
+            <td><span class="badge status-todo">To Do</span></td>
+            <td>2025-07-12</td>
+            <td><span class="priority priority-medium">Medium</span></td>
+            <td>
+                <div class="avatars">
+                    <div class="avatar" title="Charlie">C</div>
+                </div>
+            </td>
+            <td>#1892</td>
+            <td>Documentation</td>
+            <td>
+                <div class="table-actions">
+                    <button class="view-btn">View</button>
+                    <button class="edit-btn">Edit</button>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>Update user guide documentation</td>
+            <td><span class="badge status-review">In Review</span></td>
+            <td>2025-07-08</td>
+            <td><span class="priority priority-low">Low</span></td>
+            <td>
+                <div class="avatars">
+                    <div class="avatar" title="Alice">A</div>
+                </div>
+            </td>
+            <td>#2011</td>
+            <td>Documentation</td>
+            <td>
+                <div class="table-actions">
+                    <button class="view-btn">View</button>
+                    <button class="edit-btn">Edit</button>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>Implement search functionality</td>
+            <td><span class="badge status-inprogress">In Progress</span></td>
+            <td>2025-07-11</td>
+            <td><span class="priority priority-medium">Medium</span></td>
+            <td>
+                <div class="avatars">
+                    <div class="avatar" title="Charlie">C</div>
+                </div>
+            </td>
+            <td>#2156</td>
+            <td>Frontend</td>
+            <td>
+                <div class="table-actions">
+                    <button class="view-btn">View</button>
+                    <button class="edit-btn">Edit</button>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<div class="collaborators">
+    <h3>Team Members</h3>
+    <div class="avatars">
+        <div class="avatar-lg online" title="Alice (Online)">A</div>
+        <div class="avatar-lg online" title="Bob (Online)">B</div>
+        <div class="avatar-lg" title="Charlie (Offline)">C</div>
+        <div class="avatar-lg online" title="Dana (Online)">D</div>
+    </div>
+</div>
+
+<script>
+    // Tab switching functionality
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            // Remove active class from all tabs and contents
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            // Add active class to clicked tab and corresponding content
+            tab.classList.add('active');
+            const tabId = tab.getAttribute('data-tab');
+            document.getElementById(tabId).classList.add('active');
+        });
+    });
+</script>
+
+</body>
+</html></title>
+</head>
+

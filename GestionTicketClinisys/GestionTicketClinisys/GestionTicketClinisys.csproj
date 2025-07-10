@@ -18,7 +18,10 @@
 
   <ItemGroup>
     <Folder Include="Migrations\" />
-    <Folder Include="wwwroot\js\" />
   </ItemGroup>
+
+  <!--<ItemGroup>
+    <Content Include="wwwroot\kanban-dashboard.html" />
+  </ItemGroup>-->
 
 </Project>

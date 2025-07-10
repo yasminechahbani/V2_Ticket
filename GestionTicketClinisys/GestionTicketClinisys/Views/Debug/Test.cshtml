@@ -1,0 +1,24 @@
+@{
+    ViewData["Title"] = "Debug Test";
+}
+
+<div class="container mt-4">
+    <h2>Debug Information</h2>
+    
+    <div class="card">
+        <div class="card-body">
+            <h5>Routing Test</h5>
+            <p><strong>Message:</strong> @ViewBag.Message</p>
+            <p><strong>Session Exists:</strong> @ViewBag.SessionExists</p>
+            <p><strong>Session User ID:</strong> @ViewBag.SessionUserId</p>
+            <p><strong>Session User Name:</strong> @ViewBag.SessionUserName</p>
+            
+            <hr>
+            
+            <h5>Test Links</h5>
+            <p><a href="/MesTaches" class="btn btn-primary">Test MesTaches Route</a></p>
+            <p><a href="/TaskItems/MesTaches" class="btn btn-secondary">Test TaskItems/MesTaches Route</a></p>
+            <p><a href="/Account/Login" class="btn btn-info">Test Login Route</a></p>
+        </div>
+    </div>
+</div>

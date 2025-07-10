@@ -1,0 +1,88 @@
+@using GestionTicketClinisys.Models.Enums
+@model IEnumerable<GestionTicketClinisys.Models.TaskItem>
+
+@{
+ViewData["Title"] = "Tasks for Ticket";
+}
+
+<div class="container mt-4">
+    <h2>Tasks for Ticket #@ViewBag.TicketId</h2>
+
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">To Do</h5>
+                </div>
+                <div class="card-body">
+                    @foreach (var task in Model.Where(t => t.Status == TicketStatus.Open))
+                    {
+                    <div class="task-card mb-3 p-3 border rounded">
+                        <h6>@task.Title</h6>
+                        <p class="small">@task.Description</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-info">Assigned to: @task.AssignedUser.UserName</span>
+                            <form asp-action="UpdateStatus" method="post">
+                                <input type="hidden" name="id" value="@task.Id" />
+                                <input type="hidden" name="newStatus" value="@TicketStatus.InProgress" />
+                                <button type="submit" class="btn btn-sm btn-success">Start</button>
+                            </form>
+                        </div>
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">In Progress</h5>
+                </div>
+                <div class="card-body">
+                    @foreach (var task in Model.Where(t => t.Status == TicketStatus.InProgress))
+                    {
+                    <div class="task-card mb-3 p-3 border rounded">
+                        <h6>@task.Title</h6>
+                        <p class="small">@task.Description</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>Started: @task.CreatedAt.ToString("g")</span>
+                            <form asp-action="UpdateStatus" method="post">
+                                <input type="hidden" name="id" value="@task.Id" />
+                                <input type="hidden" name="newStatus" value="@TicketStatus.Resolved" />
+                                <button type="submit" class="btn btn-sm btn-primary">Complete</button>
+                            </form>
+                        </div>
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Completed</h5>
+                </div>
+                <div class="card-body">
+                    @foreach (var task in Model.Where(t => t.Status == TicketStatus.Resolved))
+                    {
+                    <div class="task-card mb-3 p-3 border rounded bg-light">
+                        <h6>@task.Title</h6>
+                        <p class="small">@task.Description</p>
+                        <div class="text-muted small">
+                            Completed by @task.AssignedUser.UserName
+                        </div>
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a asp-action="Create" asp-route-ticketId="@ViewBag.TicketId" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add New Task
+        </a>
+    </div>
+</div>

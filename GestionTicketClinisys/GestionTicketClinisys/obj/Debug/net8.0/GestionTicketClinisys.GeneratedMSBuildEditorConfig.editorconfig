@@ -26,6 +26,10 @@ build_property.GenerateRazorMetadataSourceChecksumAttributes =
 build_property.MSBuildProjectDirectory = C:\Users\user\Documents\GestionTicketClinisys\GestionTicketClinisys
 build_property._RazorSourceGeneratorDebug = 
 
+[C:/Users/user/Documents/GestionTicketClinisys/GestionTicketClinisys/Views/Account/Login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxMb2dpbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/user/Documents/GestionTicketClinisys/GestionTicketClinisys/Views/Clients/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2xpZW50c1xDcmVhdGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
@@ -44,6 +48,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/user/Documents/GestionTicketClinisys/GestionTicketClinisys/Views/Clients/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2xpZW50c1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/user/Documents/GestionTicketClinisys/GestionTicketClinisys/Views/Debug/Test.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGVidWdcVGVzdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/user/Documents/GestionTicketClinisys/GestionTicketClinisys/Views/Home/Index.cshtml]
@@ -84,6 +92,18 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/user/Documents/GestionTicketClinisys/GestionTicketClinisys/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/user/Documents/GestionTicketClinisys/GestionTicketClinisys/Views/TaskItems/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGFza0l0ZW1zXENyZWF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/user/Documents/GestionTicketClinisys/GestionTicketClinisys/Views/TaskItems/TaskDashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGFza0l0ZW1zXFRhc2tEYXNoYm9hcmQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/user/Documents/GestionTicketClinisys/GestionTicketClinisys/Views/TaskItems/Tasks.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGFza0l0ZW1zXFRhc2tzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/user/Documents/GestionTicketClinisys/GestionTicketClinisys/Views/Teams/Create.cshtml]

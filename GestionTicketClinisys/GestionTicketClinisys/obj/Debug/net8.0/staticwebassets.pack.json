@@ -1,6 +1,10 @@
 {
   "Files": [
     {
+      "Id": "C:\\Users\\user\\Documents\\GestionTicketClinisys\\GestionTicketClinisys\\wwwroot\\GestionTaches.html",
+      "PackagePath": "staticwebassets\\GestionTaches.html"
+    },
+    {
       "Id": "C:\\Users\\user\\Documents\\GestionTicketClinisys\\GestionTicketClinisys\\wwwroot\\css\\GestionDemandes.css",
       "PackagePath": "staticwebassets\\css\\GestionDemandes.css"
     },
@@ -13,8 +17,20 @@
       "PackagePath": "staticwebassets\\css\\login.css"
     },
     {
+      "Id": "C:\\Users\\user\\Documents\\GestionTicketClinisys\\GestionTicketClinisys\\wwwroot\\css\\task-dashboard.css",
+      "PackagePath": "staticwebassets\\css\\task-dashboard.css"
+    },
+    {
       "Id": "C:\\Users\\user\\Documents\\GestionTicketClinisys\\GestionTicketClinisys\\wwwroot\\favicon.ico",
       "PackagePath": "staticwebassets\\favicon.ico"
+    },
+    {
+      "Id": "C:\\Users\\user\\Documents\\GestionTicketClinisys\\GestionTicketClinisys\\wwwroot\\js\\tasks.js",
+      "PackagePath": "staticwebassets\\js\\tasks.js"
+    },
+    {
+      "Id": "C:\\Users\\user\\Documents\\GestionTicketClinisys\\GestionTicketClinisys\\wwwroot\\kanban-dashboard.html",
+      "PackagePath": "staticwebassets\\kanban-dashboard.html"
     },
     {
       "Id": "C:\\Users\\user\\Documents\\GestionTicketClinisys\\GestionTicketClinisys\\wwwroot\\lib\\bootstrap\\LICENSE",

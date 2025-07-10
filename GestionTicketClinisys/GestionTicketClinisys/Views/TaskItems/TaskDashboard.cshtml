@@ -1,0 +1,381 @@
+@using GestionTicketClinisys.Models.Enums
+@model IEnumerable<GestionTicketClinisys.Models.TaskItem>
+
+@{
+    ViewData["Title"] = "Mes Tâches";
+    Layout = "_Layout";
+}
+
+<header>
+    <div>
+        <h2>Mes Tâches</h2>
+    </div>
+    <div>
+        <span>Bienvenue, @ViewBag.UserName</span>
+        <form method="post" asp-controller="Account" asp-action="Logout" style="display: inline; margin-left: 1rem;">
+            <button type="submit" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
+                <i class="fas fa-sign-out-alt"></i> Déconnexion
+            </button>
+        </form>
+    </div>
+</header>
+
+<!-- Statistics Cards -->
+<div class="cards">
+    <div class="card">
+        <div class="icon">📋</div>
+        <div>
+            <div class="count">@Model.Count(t => t.Status == TicketStatus.Open)</div>
+            <div>À faire</div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="icon">⏳</div>
+        <div>
+            <div class="count">@Model.Count(t => t.Status == TicketStatus.InProgress)</div>
+            <div>En cours</div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="icon">✅</div>
+        <div>
+            <div class="count">@Model.Count(t => t.Status == TicketStatus.Resolved)</div>
+            <div>Terminées</div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="icon">📊</div>
+        <div>
+            <div class="count">@Model.Count()</div>
+            <div>Total</div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+    <div class="tab active" onclick="showTab('kanban')">Vue Kanban</div>
+    <div class="tab" onclick="showTab('table')">Vue Tableau</div>
+</div>
+
+<!-- Kanban View -->
+<div id="kanban-content" class="tab-content active">
+    @if (Model != null)
+   { <div class="kanban">
+        <!-- To Do Column -->
+        <div class="kanban-column">
+            <h3>📋 À faire (@Model.Count(t => t.Status == TicketStatus.Open))</h3>
+            @foreach (var task in Model.Where(t => t.Status == TicketStatus.Open))
+            {
+                <div class="task-card" data-task-id="@task.Id">
+                    <div style="display: flex; ; align-items: start; margin-bottom: 0.5rem;">
+                        <strong>@task.Title</strong>
+                        <div class="dropdown" style="position: relative; margin-left: auto;">
+                            <button onclick="toggleDropdown(this)" style="background: none; border: none; cursor: pointer; padding: 0.2rem;">⋮</button>
+                            <div class="dropdown-menu" style="display: none; position: absolute; right: 0; top: 100%; background: white; border: 1px solid #ddd; border-radius: 4px; min-width: 120px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 1000;">
+                                <form method="post" asp-action="UpdateStatus">
+                                    <input type="hidden" name="id" value="@task.Id" />
+                                    <input type="hidden" name="newStatus" value="@((int)TicketStatus.InProgress)" />
+                                    <button type="submit" style="width: 100%; text-align: left; padding: 0.5rem; border: none; background: none; cursor: pointer;">
+                                        ▶️ Commencer
+                                    </button>
+                                </form>
+                                <button onclick="viewTaskDetails(@task.Id, '@Html.Raw(task.Title.Replace("'", "\\'"))', '@Html.Raw(task.Description.Replace("'", "\\'"))', '@task.TicketId', '@task.CreatedAt.ToString("dd/MM/yyyy HH:mm")', '@task.Status')" style="width: 100%; text-align: left; padding: 0.5rem; border: none; background: none; cursor: pointer;">
+                                    👁️ Détails
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="color: #666; font-size: 0.9rem; margin-bottom: 0.5rem;">@task.Description</div>
+                    <div style="font-size: 0.8rem; color: #999;">
+                        <div>🎫 Ticket #@task.TicketId</div>
+                        <div class="due-date">🕐 @task.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+                    </div>
+                </div>
+            }
+            @if (!Model.Any(t => t.Status == TicketStatus.Open))
+            {
+                <div style="text-align: center; color: #999; padding: 2rem; font-style: italic;">
+                    Aucune tâche à faire
+                </div>
+            }
+        </div>
+
+        <!-- In Progress Column -->
+        <div class="kanban-column">
+            <h3>⏳ En cours (@Model.Count(t => t.Status == TicketStatus.InProgress))</h3>
+            @foreach (var task in Model.Where(t => t.Status == TicketStatus.InProgress))
+            {
+                <div class="task-card" data-task-id="@task.Id" style="border-left: 4px solid #ffc107;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                        <strong>@task.Title</strong>
+                        <div class="dropdown" style="position: relative;">
+                            <button onclick="toggleDropdown(this)" style="background: none; border: none; cursor: pointer; padding: 0.2rem;">⋮</button>
+                            <div class="dropdown-menu" style="display: none; position: absolute; right: 0; top: 100%; background: white; border: 1px solid #ddd; border-radius: 4px; min-width: 120px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 1000;">
+                                <form method="post" asp-action="UpdateStatus" style="margin: 0;">
+                                    <input type="hidden" name="id" value="@task.Id"/>
+                                    <input type="hidden" name="newStatus" value="@TicketStatus.Resolved"/>
+                                    <button type="submit" style="width: 100%; text-align: left; padding: 0.5rem; border: none; background: none; cursor: pointer;">
+                                        ✅ Terminer
+                                    </button>
+                                </form>
+                                <form method="post" asp-action="UpdateStatus" style="margin: 0;">
+                                    <input type="hidden" name="id" value="@task.Id"/>
+                                    <input type="hidden" name="newStatus" value="@TicketStatus.Open"/>
+                                    <button type="submit" style="width: 100%; text-align: left; padding: 0.5rem; border: none; background: none; cursor: pointer;">
+                                        ↩️ Remettre en attente
+                                    </button>
+                                </form>
+                                <button onclick="viewTaskDetails(@task.Id, '@Html.Raw(task.Title.Replace("'", "\\'"))', '@Html.Raw(task.Description.Replace("'", "\\'"))', '@task.TicketId', '@task.CreatedAt.ToString("dd/MM/yyyy HH:mm")', '@task.Status')" style="width: 100%; text-align: left; padding: 0.5rem; border: none; background: none; cursor: pointer;">
+                                    👁️ Détails
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="color: #666; font-size: 0.9rem; margin-bottom: 0.5rem;">@task.Description</div>
+                    <div style="font-size: 0.8rem; color: #999;">
+                        <div>🎫 Ticket #@task.TicketId</div>
+                        <div class="due-date">🕐 Démarré le @task.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+                    </div>
+                    <div style="background: #e9ecef; height: 4px; border-radius: 2px; margin-top: 0.5rem;">
+                        <div style="background: #ffc107; height: 100%; width: 50%; border-radius: 2px;"></div>
+                    </div>
+                </div>
+            }
+            @if (!Model.Any(t => t.Status == TicketStatus.InProgress))
+            {
+                <div style="text-align: center; color: #999; padding: 2rem; font-style: italic;">
+                    Aucune tâche en cours
+                </div>
+            }
+        </div>
+
+        <!-- Completed Column -->
+        <div class="kanban-column">
+            <h3>✅ Terminées (@Model.Count(t => t.Status == TicketStatus.Resolved))</h3>
+            @foreach (var task in Model.Where(t => t.Status == TicketStatus.Resolved))
+            {
+                <div class="task-card" data-task-id="@task.Id" style="border-left: 4px solid #28a745; background: #f8f9fa;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                        <strong style="color: #28a745;">✅ @task.Title</strong>
+                        <div class="dropdown" style="position: relative;">
+                            <button onclick="toggleDropdown(this)" style="background: none; border: none; cursor: pointer; padding: 0.2rem;">⋮</button>
+                            <div class="dropdown-menu" style="display: none; position: absolute; right: 0; top: 100%; background: white; border: 1px solid #ddd; border-radius: 4px; min-width: 120px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 1000;">
+                                <form method="post" asp-action="UpdateStatus" style="margin: 0;">
+                                    <input type="hidden" name="id" value="@task.Id"/>
+                                    <input type="hidden" name="newStatus" value="@TicketStatus.InProgress"/>
+                                    <button type="submit" style="width: 100%; text-align: left; padding: 0.5rem; border: none; background: none; cursor: pointer;">
+                                        ↩️ Reprendre
+                                    </button>
+                                </form>
+                                <button onclick="viewTaskDetails(@task.Id, '@Html.Raw(task.Title.Replace("'", "\\'"))', '@Html.Raw(task.Description.Replace("'", "\\'"))', '@task.TicketId', '@task.CreatedAt.ToString("dd/MM/yyyy HH:mm")', '@task.Status')" style="width: 100%; text-align: left; padding: 0.5rem; border: none; background: none; cursor: pointer;">
+                                    👁️ Détails
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="color: #666; font-size: 0.9rem; margin-bottom: 0.5rem;">@task.Description</div>
+                    <div style="font-size: 0.8rem; color: #999;">
+                        <div>🎫 Ticket #@task.TicketId</div>
+                        <div style="color: #28a745;">✅ Terminée le @task.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+                    </div>
+                </div>
+            }
+            @if (!Model.Any(t => t.Status == TicketStatus.Resolved))
+            {
+                <div style="text-align: center; color: #999; padding: 2rem; font-style: italic;">
+                    Aucune tâche terminée
+                </div>
+            }
+        </div>
+    </div>}
+    else
+    {
+    <div class="alert alert-warning">No tasks data available</div>
+    }
+</div>
+
+<!-- Table View -->
+<div id="table-content" class="tab-content">
+    <div class="search-bar">
+        <input type="text" placeholder="Rechercher une tâche..." id="searchInput" onkeyup="filterTasks()">
+        <button onclick="filterTasks()">🔍 Rechercher</button>
+    </div>
+    
+    <table id="tasksTable">
+        <thead>
+            <tr>
+                <th>Titre</th>
+                <th>Description</th>
+                <th>Ticket</th>
+                <th>Statut</th>
+                <th>Date de création</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var task in Model)
+            {
+                <tr>
+                    <td><strong>@task.Title</strong></td>
+                    <td>@task.Description</td>
+                    <td>#@task.TicketId</td>
+                    <td>
+                        @if (task.Status == TicketStatus.Open)
+                        {
+                            <span class="badge status-todo">À faire</span>
+                        }
+                        else if (task.Status == TicketStatus.InProgress)
+                        {
+                            <span class="badge status-inprogress">En cours</span>
+                        }
+                        else if (task.Status == TicketStatus.Resolved)
+                        {
+                            <span class="badge status-done">Terminée</span>
+                        }
+                    </td>
+                    <td>@task.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>
+                        <div class="table-actions">
+                            <button class="view-btn" onclick="viewTaskDetails(@task.Id, '@Html.Raw(task.Title.Replace("'", "\\'"))', '@Html.Raw(task.Description.Replace("'", "\\'"))', '@task.TicketId', '@task.CreatedAt.ToString("dd/MM/yyyy HH:mm")', '@task.Status')">
+                                👁️ Voir
+                            </button>
+                            @if (task.Status == TicketStatus.Open)
+                            {
+                                <form method="post" asp-action="UpdateStatus" style="display: inline;">
+                                    <input type="hidden" name="id" value="@task.Id" />
+                                    <input type="hidden" name="newStatus" value="@TicketStatus.InProgress" />
+                                    <button type="submit" class="edit-btn">▶️ Commencer</button>
+                                </form>
+                            }
+                            else if (task.Status == TicketStatus.InProgress)
+                            {
+                                <form method="post" asp-action="UpdateStatus" style="display: inline;">
+                                    <input type="hidden" name="id" value="@task.Id" />
+                                    <input type="hidden" name="newStatus" value="@TicketStatus.Resolved" />
+                                    <button type="submit" class="edit-btn">✅ Terminer</button>
+                                </form>
+                            }
+                            else if (task.Status == TicketStatus.Resolved)
+                            {
+                                <form method="post" asp-action="UpdateStatus" style="display: inline;">
+                                    <input type="hidden" name="id" value="@task.Id" />
+                                    <input type="hidden" name="newStatus" value="@TicketStatus.InProgress" />
+                                    <button type="submit" class="edit-btn">↩️ Reprendre</button>
+                                </form>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Task Details Modal -->
+<div id="taskModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4);">
+    <div style="background-color: white; margin: 10% auto; padding: 2rem; border-radius: 8px; width: 80%; max-width: 500px; position: relative;">
+        <span onclick="closeModal()" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; line-height: 1;">&times;</span>
+        <h3 id="modalTitle">Détails de la tâche</h3>
+        <div id="modalContent">
+            <!-- Task details will be loaded here -->
+        </div>
+    </div>
+</div>
+
+<script>
+// Tab switching
+function showTab(tabName) {
+    // Hide all tab contents
+    const contents = document.querySelectorAll('.tab-content');
+    contents.forEach(content => content.classList.remove('active'));
+    
+    // Remove active class from all tabs
+    const tabs = document.querySelectorAll('.tab');
+    tabs.forEach(tab => tab.classList.remove('active'));
+    
+    // Show selected content and activate tab
+    document.getElementById(tabName + '-content').classList.add('active');
+    event.target.classList.add('active');
+}
+
+// Dropdown functionality
+function toggleDropdown(button) {
+    const dropdown = button.nextElementSibling;
+    const isOpen = dropdown.style.display === 'block';
+    
+    // Close all dropdowns
+    document.querySelectorAll('.dropdown-menu').forEach(menu => {
+        menu.style.display = 'none';
+    });
+    
+    // Toggle current dropdown
+    if (!isOpen) {
+        dropdown.style.display = 'block';
+    }
+}
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', function(event) {
+    if (!event.target.closest('.dropdown')) {
+        document.querySelectorAll('.dropdown-menu').forEach(menu => {
+            menu.style.display = 'none';
+        });
+    }
+});
+
+// Task details modal
+function viewTaskDetails(taskId, title, description, ticketId, createdAt, status) {
+    const statusText = status === '@TicketStatus.Open' ? 'À faire' : 
+                      status === '@TicketStatus.InProgress' ? 'En cours' : 'Terminée';
+    
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalContent').innerHTML = `
+        <p><strong>Description:</strong> ${description}</p>
+        <p><strong>Ticket:</strong> #${ticketId}</p>
+        <p><strong>Statut:</strong> ${statusText}</p>
+        <p><strong>Date de création:</strong> ${createdAt}</p>
+    `;
+    document.getElementById('taskModal').style.display = 'block';
+}
+
+function closeModal() {
+    document.getElementById('taskModal').style.display = 'none';
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('taskModal');
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Search functionality
+function filterTasks() {
+    const input = document.getElementById('searchInput');
+    const filter = input.value.toLowerCase();
+    const table = document.getElementById('tasksTable');
+    const rows = table.getElementsByTagName('tr');
+
+    for (let i = 1; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName('td');
+        let found = false;
+        
+        for (let j = 0; j < cells.length - 1; j++) {
+            if (cells[j].textContent.toLowerCase().indexOf(filter) > -1) {
+                found = true;
+                break;
+            }
+        }
+        
+        rows[i].style.display = found ? '' : 'none';
+    }
+}
+
+// Auto-refresh functionality (optional)
+setInterval(function() {
+    // Uncomment the line below if you want auto-refresh
+    // location.reload();
+}, 30000); // Refresh every 30 seconds
+</script>

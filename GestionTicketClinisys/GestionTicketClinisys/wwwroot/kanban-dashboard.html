@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>My Tasks - Kanban Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #f5f7fa;
+            color: #333;
+        }
+
+        header {
+            padding: 1rem;
+            background: #007bff;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .filters select {
+            margin-left: 0.5rem;
+            padding: 0.3rem;
+        }
+
+        .cards {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            background: white;
+            flex: 1;
+            min-width: 150px;
+            padding: 1rem;
+            border-radius: 6px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card .icon {
+            font-size: 1.5rem;
+        }
+
+        .card .count {
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            padding: 0 1rem;
+            border-bottom: 2px solid #ddd;
+            background: white;
+        }
+
+        .tab {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .tab.active {
+            border-color: #007bff;
+            color: #0056b3;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 1rem;
+            background: white;
+            margin: 1rem;
+            border-radius: 6px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .kanban {
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+            min-height: 500px;
+        }
+
+        .kanban-column {
+            flex: 1;
+            min-width: 280px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .kanban-column h3 {
+            margin-top: 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .task-count {
+            background: #6c757d;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.8rem;
+        }
+
+        .column-open h3 { border-color: #007bff; }
+        .column-open .task-count { background: #007bff; }
+        .column-inprogress h3 { border-color: #ffc107; }
+        .column-inprogress .task-count { background: #ffc107; color: #212529; }
+        .column-resolved h3 { border-color: #28a745; }
+        .column-resolved .task-count { background: #28a745; }
+
+        .task-card {
+            background: white;
+            margin: 0.5rem 0;
+            padding: 1rem;
+            border-radius: 6px;
+            cursor: grab;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+            border-left: 4px solid #dee2e6;
+        }
+
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .task-card.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+
+        .task-card.open { border-left-color: #007bff; }
+        .task-card.inprogress { border-left-color: #ffc107; }
+        .task-card.resolved { border-left-color: #28a745; }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+
+        .task-title {
+            font-weight: 600;
+            margin: 0;
+            color: #333;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .task-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            transition: background 0.2s;
+        }
+
+        .task-btn:hover {
+            background: #f8f9fa;
+        }
+
+        .task-description {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #6c757d;
+            border-top: 1px solid #eee;
+            padding-top: 0.5rem;
+        }
+
+        .ticket-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+        }
+
+        .empty-column {
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .drop-zone {
+            border: 2px dashed #007bff;
+            background: rgba(0,123,255,0.1);
+            border-radius: 6px;
+            margin: 0.5rem 0;
+            padding: 1rem;
+            text-align: center;
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        .search-bar {
+            padding: 1rem;
+            background: white;
+            margin: 1rem;
+            border-radius: 6px;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .search-bar input {
+            padding: 0.5rem;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            flex: 1;
+        }
+
+        .search-bar button {
+            padding: 0.5rem 1rem;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            border: 1px solid #dee2e6;
+            text-align: left;
+        }
+
+        th {
+            background: #f1f3f5;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .badge {
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            color: white;
+            font-size: 0.8rem;
+            display: inline-block;
+            text-align: center;
+            min-width: 80px;
+        }
+
+        .status-open { background: #007bff; }
+        .status-inprogress { background: #ffc107; color: #212529; }
+        .status-resolved { background: #28a745; }
+
+        .table-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .table-actions button {
+            padding: 0.3rem 0.6rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .view-btn { background: #007bff; color: white; }
+        .edit-btn { background: #6c757d; color: white; }
+
+        @media (max-width: 768px) {
+            .cards {
+                flex-direction: column;
+            }
+            .kanban {
+                flex-direction: column;
+            }
+            .kanban-column {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>My Tasks</h1>
+    <div class="user-info">
+        <span>Welcome, <span id="username">Loading...</span></span>
+        <button class="logout-btn" onclick="logout()">
+            🚪 Logout
+        </button>
+    </div>
+</header>
+
+<section class="cards">
+    <div class="card">
+        <span class="icon">📋</span>
+        <div>
+            <div class="count" id="total-tasks">0</div>
+            <div>Total Tasks</div>
+        </div>
+    </div>
+    <div class="card">
+        <span class="icon">🔵</span>
+        <div>
+            <div class="count" id="open-tasks">0</div>
+            <div>To Do</div>
+        </div>
+    </div>
+    <div class="card">
+        <span class="icon">🟡</span>
+        <div>
+            <div class="count" id="inprogress-tasks">0</div>
+            <div>In Progress</div>
+        </div>
+    </div>
+    <div class="card">
+        <span class="icon">🟢</span>
+        <div>
+            <div class="count" id="resolved-tasks">0</div>
+            <div>Completed</div>
+        </div>
+    </div>
+</section>
+
+<div class="tabs">
+    <div class="tab active" data-tab="kanban">Kanban Board</div>
+    <div class="tab" data-tab="table">Task Table</div>
+</div>
+
+<section id="kanban" class="tab-content active">
+    <div class="kanban">
+        <div class="kanban-column column-open" data-status="Open">
+            <h3>
+                To Do
+                <span class="task-count" id="open-count">0</span>
+            </h3>
+            <div class="task-container" id="open-tasks-container">
+                <div class="loading">Loading tasks...</div>
+            </div>
+        </div>
+
+        <div class="kanban-column column-inprogress" data-status="InProgress">
+            <h3>
+                In Progress
+                <span class="task-count" id="inprogress-count">0</span>
+            </h3>
+            <div class="task-container" id="inprogress-tasks-container">
+                <div class="loading">Loading tasks...</div>
+            </div>
+        </div>
+
+        <div class="kanban-column column-resolved" data-status="Resolved">
+            <h3>
+                Completed
+                <span class="task-count" id="resolved-count">0</span>
+            </h3>
+            <div class="task-container" id="resolved-tasks-container">
+                <div class="loading">Loading tasks...</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="table" class="tab-content">
+    <div class="search-bar">
+        <input type="text" id="search-input" placeholder="Search tasks...">
+        <button onclick="searchTasks()">Search</button>
+    </div>
+    <table id="tasks-table">
+        <thead>
+        <tr>
+            <th>Task Title</th>
+            <th>Status</th>
+            <th>Description</th>
+            <th>Created Date</th>
+            <th>Ticket ID</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody id="tasks-table-body">
+        <tr>
+            <td colspan="6" class="loading">Loading tasks...</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<script>
+    // Global variables
+    let allTasks = [];
+    let currentUser = null;
+
+    // Initialize the application
+    document.addEventListener('DOMContentLoaded', async () => {
+        await checkAuthentication();
+        await loadTasks();
+        setupEventListeners();
+    });
+
+    // Check if user is authenticated
+    async function checkAuthentication() {
+        try {
+            const response = await fetch('/TaskItems/GetMyTasks');
+            if (response.status === 401) {
+                window.location.href = '/Account/Login';
+                return;
+            }
+
+            // Get user info from session (you might need to create an endpoint for this)
+            const userInfo = await getUserInfo();
+            if (userInfo) {
+                document.getElementById('username').textContent = userInfo.userName || 'User';
+                currentUser = userInfo;
+            }
+        } catch (error) {
+            console.error('Authentication check failed:', error);
+            window.location.href = '/Account/Login';
+        }
+    }
+
+    // Get user info (you might need to add this endpoint to your controller)
+    async function getUserInfo() {
+        try {
+            const response = await fetch('/Account/GetUserInfo');
+            if (response.ok) {
+                return await response.json();
+            }
+        } catch (error) {
+            console.error('Failed to get user info:', error);
+        }
+        return null;
+    }
+
+    // Load tasks from the server
+    async function loadTasks() {
+        try {
+            const response = await fetch('/TaskItems/GetMyTasks');
+            if (response.ok) {
+                allTasks = await response.json();
+                renderKanbanView();
+                renderTableView();
+                updateStatistics();
+            } else {
+                console.error('Failed to load tasks');
+            }
+        } catch (error) {
+            console.error('Error loading tasks:', error);
+        }
+    }
+
+    // Render Kanban view
+    function renderKanbanView() {
+        const containers = {
+            'Open': document.getElementById('open-tasks-container'),
+            'InProgress': document.getElementById('inprogress-tasks-container'),
+            'Resolved': document.getElementById('resolved-tasks-container')
+        };
+
+        // Clear existing content
+        Object.values(containers).forEach(container => {
+            container.innerHTML = '';
+        });
+
+        // Group tasks by status
+        const tasksByStatus = {
+            'Open': [],
+            'InProgress': [],
+            'Resolved': []
+        };
+
+        allTasks.forEach(task => {
+            const status = task.status;
+            if (tasksByStatus[status]) {
+                tasksByStatus[status].push(task);
+            }
+        });
+
+        // Render tasks in each column
+        Object.entries(tasksByStatus).forEach(([status, tasks]) => {
+            const container = containers[status];
+
+            if (tasks.length === 0) {
+                container.innerHTML = '<div class="empty-column">No tasks</div>';
+            } else {
+                tasks.forEach(task => {
+                    container.appendChild(createTaskCard(task));
+                });
+            }
+        });
+
+        // Update counters
+        document.getElementById('open-count').textContent = tasksByStatus['Open'].length;
+        document.getElementById('inprogress-count').textContent = tasksByStatus['InProgress'].length;
+        document.getElementById('resolved-count').textContent = tasksByStatus['Resolved'].length;
+    }
+
+    // Create task card element
+    function createTaskCard(task) {
+        const card = document.createElement('div');
+        card.className = `task-card ${task.status.toLowerCase()}`;
+        card.dataset.taskId = task.id;
+        card.draggable = true;
+
+        const createdDate = new Date(task.createdAt).toLocaleDateString();
+
+        card.innerHTML = `
+                <div class="task-header">
+                    <h4 class="task-title">${task.title}</h4>
+                    <div class="task-actions">
+                        <button class="task-btn" onclick="viewTaskDetails(${task.id})" title="View Details">👁️</button>
+                    </div>
+                </div>
+                <div class="task-description">${task.description || 'No description'}</div>
+                <div class="task-meta">
+                    <div class="ticket-info">
+                        <span>🎫 #${task.ticketId}</span>
+                    </div>
+                    <div>${createdDate}</div>
+                </div>
+            `;
+
+        // Add drag event listeners
+        card.addEventListener('dragstart', handleDragStart);
+        card.addEventListener('dragend', handleDragEnd);
+
+        return card;
+    }
+
+    // Render table view
+    function renderTableView() {
+        const tbody = document.getElementById('tasks-table-body');
+        tbody.innerHTML = '';
+
+        if (allTasks.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="loading">No tasks found</td></tr>';
+            return;
+        }
+
+        allTasks.forEach(task => {
+            const row = document.createElement('tr');
+            const createdDate = new Date(task.createdAt).toLocaleDateString();
+
+            row.innerHTML = `
+                    <td>${task.title}</td>
+                    <td><span class="badge status-${task.status.toLowerCase()}">${task.status}</span></td>
+                    <td>${task.description || 'No description'}</td>
+                    <td>${createdDate}</td>
+                    <td>#${task.ticketId}</td>
+                    <td>
+                        <div class="table-actions">
+                            <button class="view-btn" onclick="viewTaskDetails(${task.id})">View</button>
+                            <button class="edit-btn" onclick="changeTaskStatus(${task.id})">Change Status</button>
+                        </div>
+                    </td>
+                `;
+            tbody.appendChild(row);
+        });
+    }
+
+    // Update statistics
+    function updateStatistics() {
+        const openTasks = allTasks.filter(t => t.status === 'Open').length;
+        const inProgressTasks = allTasks.filter(t => t.status === 'InProgress').length;
+        const resolvedTasks = allTasks.filter(t => t.status === 'Resolved').length;
+
+        document.getElementById('total-tasks').textContent = allTasks.length;
+        document.getElementById('open-tasks').textContent = openTasks;
+        document.getElementById('inprogress-tasks').textContent = inProgressTasks;
+        document.getElementById('resolved-tasks').textContent = resolvedTasks;
+    }
+
+    // Drag and drop functionality
+    function handleDragStart(e) {
+        e.dataTransfer.setData('text/plain', e.target.dataset.taskId);
+        e.target.classList.add('dragging');
+    }
+
+    function handleDragEnd(e) {
+        e.target.classList.remove('dragging');
+    }
+
+    // Setup drag and drop for columns
+    function setupEventListeners() {
+        document.querySelectorAll('.kanban-column').forEach(column => {
+            column.addEventListener('dragover', handleDragOver);
+            column.addEventListener('drop', handleDrop);
+        });
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', switchTab);
+        });
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+    }
+
+    async function handleDrop(e) {
+        e.preventDefault();
+        const taskId = e.dataTransfer.getData('text/plain');
+        const newStatus = e.target.closest('.kanban-column').dataset.status;
+
+        try {
+            const response = await fetch('/TaskItems/UpdateStatus', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `id=${taskId}&newStatus=${newStatus}`
+            });
+
+            if (response.ok) {
+                await loadTasks(); // Refresh the view
+            } else {
+                console.error('Failed to update task status');
+            }
+        } catch (error) {
+            console.error('Error updating task status:', error);
+        }
+    }
+
+    // Tab switching
+    function switchTab(e) {
+        // Remove active class from all tabs and contents
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+        // Add active class to clicked tab and corresponding content
+        e.target.classList.add('active');
+        const tabId = e.target.getAttribute('data-tab');
+        document.getElementById(tabId).classList.add('active');
+    }
+
+    // Search functionality
+    function searchTasks() {
+        const searchTerm = document.getElementById('search-input').value.toLowerCase();
+        const rows = document.querySelectorAll('#tasks-table-body tr');
+
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+    }
+
+    // Task actions
+    function viewTaskDetails(taskId) {
+        const task = allTasks.find(t => t.id === taskId);
+        if (task) {
+            alert(`Task: ${task.title}\nDescription: ${task.description}\nStatus: ${task.status}\nTicket: #${task.ticketId}`);
+        }
+    }
+
+    function changeTaskStatus(taskId) {
+        const task = allTasks.find(t => t.id === taskId);
+        if (task) {
+            const statuses = ['Open', 'InProgress', 'Resolved'];
+            const newStatus = prompt(`Current status: ${task.status}\nEnter new status (${statuses.join(', ')}):`, task.status);
+
+            if (newStatus && statuses.includes(newStatus)) {
+                updateTaskStatus(taskId, newStatus);
+            }
+        }
+    }
+
+    async function updateTaskStatus(taskId, newStatus) {
+        try {
+            const response = await fetch('/TaskItems/UpdateStatus', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `id=${taskId}&newStatus=${newStatus}`
+            });
+
+            if (response.ok) {
+                await loadTasks(); // Refresh the view
+            } else {
+                console.error('Failed to update task status');
+            }
+        } catch (error) {
+            console.error('Error updating task status:', error);
+        }
+    }
+
+    // Logout functionality
+    function logout() {
+        if (confirm('Are you sure you want to logout?')) {
+            window.location.href = '/Account/Logout';
+        }
+    }
+
+    // Auto-refresh every 30 seconds
+    setInterval(async () => {
+        await loadTasks();
+    }, 30000);
+</script>
+</body>
+</html>
