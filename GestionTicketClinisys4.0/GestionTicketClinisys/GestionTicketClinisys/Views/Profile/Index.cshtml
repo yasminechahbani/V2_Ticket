@@ -1,0 +1,544 @@
+@model GestionTicketClinisys.Models.ProfileViewModel
+@{
+    ViewData["Title"] = "Profil Utilisateur";
+}
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f5f5f5;
+        color: #333;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .header {
+        background-color: #2c5282;
+        color: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background-color: #4a90e2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        font-weight: bold;
+        color: white;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .profile-info h1 {
+        margin-bottom: 5px;
+        font-size: 24px;
+    }
+
+    .profile-info p {
+        opacity: 0.9;
+        font-size: 16px;
+    }
+
+    .profile-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .profile-section {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .section-header {
+        background-color: #2c5282;
+        color: white;
+        padding: 15px 20px;
+        font-size: 16px;
+        font-weight: bold;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .section-body {
+        padding: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    input, select, textarea {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    input:focus, select:focus, textarea:focus {
+        outline: none;
+        border-color: #4299e1;
+        box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.2);
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    .btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.3s;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #545b62;
+    }
+
+    .btn-edit {
+        background-color: transparent;
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 5px 10px;
+        font-size: 12px;
+    }
+
+    .btn-edit:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .activity-item {
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+
+    .activity-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: #007bff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 12px;
+    }
+
+    .activity-content {
+        flex: 1;
+    }
+
+    .activity-title {
+        font-weight: bold;
+        margin-bottom: 2px;
+        color: #2d3748;
+    }
+
+    .activity-subtitle {
+        color: #718096;
+        font-size: 12px;
+        margin-bottom: 2px;
+        font-style: italic;
+    }
+
+    .activity-time {
+        font-size: 11px;
+        color: #a0aec0;
+        font-weight: 500;
+    }
+
+    .full-width {
+        grid-column: 1 / -1;
+    }
+
+    .profile-picture-section {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .profile-picture {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background-color: #4a90e2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 48px;
+        font-weight: bold;
+        color: white;
+        margin: 0 auto 15px;
+        border: 4px solid #ddd;
+    }
+
+    .upload-btn {
+        background-color: #28a745;
+        color: white;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .upload-btn:hover {
+        background-color: #218838;
+    }
+
+    .status-badge {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    .status-active {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .status-inactive {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .back-button {
+        background-color: transparent;
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 8px 16px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 14px;
+        margin-right: 15px;
+    }
+
+    .back-button:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white;
+        text-decoration: none;
+    }
+
+    @@media (max-width: 768px) {
+        .profile-content {
+            grid-template-columns: 1fr;
+        }
+        
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .header {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+</style>
+
+<div class="container">
+    <div class="header">
+        <a href="@Url.Action("Menu", "Home")" class="back-button">← Retour au Menu</a>
+        <div class="profile-avatar">@Model.Initials</div>
+        <div class="profile-info">
+            <h1>@(Model.FullName ?? Model.UserName)</h1>
+            <p>@Model.Position • @Model.Department</p>
+            <span class="status-badge @(Model.IsActive ? "status-active" : "status-inactive")">
+                @(Model.IsActive ? "Actif" : "Inactif")
+            </span>
+        </div>
+    </div>
+
+    <form id="profileForm" asp-action="Update" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+        
+        <div class="profile-content">
+            <!-- Informations Personnelles -->
+            <div class="profile-section">
+                <div class="section-header">
+                    INFORMATIONS PERSONNELLES
+                    <button type="button" class="btn btn-edit" onclick="toggleEdit('personal')">Modifier</button>
+                </div>
+                <div class="section-body" id="personal">
+                    <div class="profile-picture-section">
+                        <div class="profile-picture">@Model.Initials</div>
+                        <button type="button" class="upload-btn" onclick="uploadPhoto()">Changer Photo</button>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label asp-for="FirstName">Prénom</label>
+                            <input asp-for="FirstName" readonly />
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="LastName">Nom</label>
+                            <input asp-for="LastName" readonly />
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label asp-for="Email">Email</label>
+                            <input asp-for="Email" readonly />
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Phone">Téléphone</label>
+                            <input asp-for="Phone" readonly />
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label asp-for="Address">Adresse</label>
+                        <textarea asp-for="Address" rows="3" readonly></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label asp-for="DateOfBirth">Date de Naissance</label>
+                            <input asp-for="DateOfBirth" type="date" readonly />
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Nationality">Nationalité</label>
+                            <input asp-for="Nationality" readonly />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informations Professionnelles -->
+            <div class="profile-section">
+                <div class="section-header">
+                    INFORMATIONS PROFESSIONNELLES
+                    <button type="button" class="btn btn-edit" onclick="toggleEdit('professional')">Modifier</button>
+                </div>
+                <div class="section-body" id="professional">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label asp-for="Position">Poste</label>
+                            <input asp-for="Position" readonly />
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Department">Département</label>
+                            <select asp-for="Department" disabled>
+                                <option value="">Sélectionner...</option>
+                                <option value="IT">IT</option>
+                                <option value="RH">RH</option>
+                                <option value="Finance">Finance</option>
+                                <option value="Marketing">Marketing</option>
+                                <option value="Support">Support</option>
+                                <option value="Administration">Administration</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label asp-for="Manager">Manager</label>
+                        <input asp-for="Manager" readonly />
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label asp-for="Role">Rôle</label>
+                            <input asp-for="Role" readonly />
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="TeamName">Équipe</label>
+                            <input asp-for="TeamName" readonly />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activité Récente -->
+            <div class="profile-section">
+                <div class="section-header">
+                    ACTIVITÉ RÉCENTE
+                </div>
+                <div class="section-body">
+                    <div id="activityList">
+                        <div class="activity-item">
+                            <div class="activity-icon">📝</div>
+                            <div class="activity-content">
+                                <div class="activity-title">Chargement...</div>
+                                <div class="activity-time"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div style="margin-top: 20px; text-align: center;">
+            <button type="submit" class="btn btn-primary" id="saveBtn" style="display: none;">Enregistrer les Modifications</button>
+            <button type="button" class="btn btn-secondary" onclick="resetProfile()" id="cancelBtn" style="display: none;">Annuler</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    let isEditing = false;
+
+    function toggleEdit(section) {
+        const sectionElement = document.getElementById(section);
+        const inputs = sectionElement.querySelectorAll('input, select, textarea');
+        const saveBtn = document.getElementById('saveBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+
+        isEditing = !isEditing;
+
+        inputs.forEach(input => {
+            if (input.name !== 'Email' && input.name !== 'Role' && input.name !== 'TeamName') {
+                input.readOnly = !isEditing;
+                input.disabled = !isEditing;
+            }
+        });
+
+        if (isEditing) {
+            saveBtn.style.display = 'inline-block';
+            cancelBtn.style.display = 'inline-block';
+        } else {
+            saveBtn.style.display = 'none';
+            cancelBtn.style.display = 'none';
+        }
+    }
+
+    function uploadPhoto() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.onchange = function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                alert('Fonctionnalité de téléchargement de photo à implémenter');
+            }
+        };
+        input.click();
+    }
+
+    function resetProfile() {
+        location.reload();
+    }
+
+    // Load recent activity
+    function loadRecentActivity() {
+        fetch('/Profile/GetRecentActivity')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const activityList = document.getElementById('activityList');
+                    if (data.activities && data.activities.length > 0) {
+                        activityList.innerHTML = data.activities.map(activity => `
+                            <div class="activity-item">
+                                <div class="activity-icon">${activity.icon}</div>
+                                <div class="activity-content">
+                                    <div class="activity-title">${activity.title}</div>
+                                    ${activity.subtitle ? `<div class="activity-subtitle">${activity.subtitle}</div>` : ''}
+                                    <div class="activity-time">${activity.time}</div>
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        activityList.innerHTML = `
+                            <div class="activity-item">
+                                <div class="activity-icon">💼</div>
+                                <div class="activity-content">
+                                    <div class="activity-title">Aucune tâche assignée</div>
+                                    <div class="activity-subtitle">Vous n'avez actuellement aucune tâche assignée</div>
+                                    <div class="activity-time">Contactez votre manager pour obtenir des tâches</div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error loading activity:', error);
+            });
+    }
+
+    // Handle form submission
+    document.getElementById('profileForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+
+        fetch('/Profile/Update', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert('Erreur: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Une erreur est survenue');
+        });
+    });
+
+    // Load activity when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        loadRecentActivity();
+    });
+</script>

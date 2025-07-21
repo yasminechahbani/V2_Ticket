@@ -1,0 +1,222 @@
+@{
+    ViewData["Title"] = "Guide Utilisateur";
+}
+
+<link rel="stylesheet" href="@Url.Content("~/css/Guide.css")" />
+
+<div class="guide-container">
+    <!-- Header -->
+    <div class="guide-header">
+        <div class="header-left">
+            <a href="@Url.Action("Menu", "Home")" class="back-button">← Retour au Menu</a>
+            <h1>📖 Guide Utilisateur</h1>
+        </div>
+        <div class="header-right">
+            <span class="user-info">👤 @ViewBag.UserName (@ViewBag.UserRole)</span>
+        </div>
+    </div>
+
+    <!-- Navigation Sidebar -->
+    <div class="guide-layout">
+        <nav class="guide-sidebar">
+            <div class="sidebar-header">
+                <h3>📋 Table des Matières</h3>
+            </div>
+            <ul class="guide-nav">
+                <li><a href="#getting-started" class="nav-link active">🚀 Démarrage</a></li>
+                <li><a href="#navigation" class="nav-link">🧭 Navigation</a></li>
+                <li><a href="#tickets" class="nav-link">🎫 Gestion des Demandes</a></li>
+                <li><a href="#tasks" class="nav-link">📋 Gestion des Tâches</a></li>
+                <li><a href="#profile" class="nav-link">👤 Profil</a></li>
+                <li><a href="#troubleshooting" class="nav-link">🔧 Dépannage</a></li>
+                <li><a href="#faq" class="nav-link">❓ FAQ</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="guide-content">
+            <!-- Getting Started Section -->
+            <section id="getting-started" class="guide-section">
+                <h2>🚀 Démarrage Rapide</h2>
+                <div class="section-content">
+                    <p>Bienvenue dans le système de gestion des tickets CliniSys ! Ce guide vous aidera à utiliser efficacement toutes les fonctionnalités.</p>
+                    
+                    <div class="info-box">
+                        <h4>🎯 Objectif du Système</h4>
+                        <p>CliniSys permet de gérer les demandes de support, d'assigner des tâches aux équipes, et de suivre l'avancement des projets.</p>
+                    </div>
+
+                    <h3>Première Connexion</h3>
+                    <ol>
+                        <li>Connectez-vous avec vos identifiants</li>
+                        <li>Vous arrivez sur le menu principal avec les différentes options</li>
+                        <li>Votre rôle détermine les fonctionnalités accessibles</li>
+                    </ol>
+                </div>
+            </section>
+
+            <!-- Navigation Section -->
+            <section id="navigation" class="guide-section">
+                <h2>🧭 Navigation dans l'Application</h2>
+                <div class="section-content">
+                    <h3>Menu Principal</h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">📝</div>
+                            <h4>Nouvelle Demande</h4>
+                            <p>Créer une nouvelle demande de support</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">⚙️</div>
+                            <h4>Gestion des Demandes</h4>
+                            <p>Voir et gérer toutes les demandes (Admin/Manager)</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">📊</div>
+                            <h4>Mes Tâches</h4>
+                            <p>Voir les tâches qui vous sont assignées</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">📁</div>
+                            <h4>Demandes Classées</h4>
+                            <p>Gestion avancée des tâches (Admin/Manager)</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tickets Section -->
+            <section id="tickets" class="guide-section">
+                <h2>🎫 Gestion des Demandes</h2>
+                <div class="section-content">
+                    <h3>Créer une Demande</h3>
+                    <ol>
+                        <li>Cliquez sur "Nouvelle Demande"</li>
+                        <li>Remplissez le formulaire avec les informations requises</li>
+                        <li>Sélectionnez la priorité et le type</li>
+                        <li>Assignez à une équipe</li>
+                        <li>Cliquez sur "Créer"</li>
+                    </ol>
+
+                    <h3>Statuts des Demandes</h3>
+                    <div class="status-examples">
+                        <span class="status-badge status-en-attente">En Attente</span>
+                        <span class="status-badge status-en-cours">En Cours</span>
+                        <span class="status-badge status-termine">Terminé</span>
+                        <span class="status-badge status-rejete">Rejeté</span>
+                    </div>
+
+                    <h3>Temps d'Attente</h3>
+                    <p>Chaque demande affiche son temps d'attente avec un code couleur :</p>
+                    <div class="pending-examples">
+                        <span class="pending-time pending-recent">2 heures</span> Récent (< 1 jour)
+                        <span class="pending-time pending-moderate">2 jours</span> Modéré (1-2 jours)
+                        <span class="pending-time pending-warning">5 jours</span> Attention (3-6 jours)
+                        <span class="pending-time pending-critical">10 jours</span> Critique (7+ jours)
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tasks Section -->
+            <section id="tasks" class="guide-section">
+                <h2>📋 Gestion des Tâches</h2>
+                <div class="section-content">
+                    <h3>Mes Tâches</h3>
+                    <p>Dans cette section, vous pouvez :</p>
+                    <ul>
+                        <li>Voir toutes les tâches qui vous sont assignées</li>
+                        <li>Mettre à jour le statut des tâches</li>
+                        <li>Filtrer par statut ou rechercher</li>
+                        <li>Voir les détails de chaque tâche</li>
+                    </ul>
+
+                    <h3>Statuts des Tâches</h3>
+                    <ul>
+                        <li><strong>Non commencé</strong> : Tâche créée mais pas encore démarrée</li>
+                        <li><strong>En cours</strong> : Tâche en cours de réalisation</li>
+                        <li><strong>Terminé</strong> : Tâche complétée</li>
+                        <li><strong>Annulé</strong> : Tâche annulée</li>
+                    </ul>
+
+                    <div class="warning-box">
+                        <h4>⚠️ Important</h4>
+                        <p>Les tâches sont liées aux demandes et ne peuvent être assignées qu'aux membres de l'équipe responsable de la demande.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Profile Section -->
+            <section id="profile" class="guide-section">
+                <h2>👤 Gestion du Profil</h2>
+                <div class="section-content">
+                    <h3>Modifier votre Profil</h3>
+                    <ol>
+                        <li>Cliquez sur "Profil" dans le menu</li>
+                        <li>Modifiez vos informations personnelles</li>
+                        <li>Changez votre mot de passe si nécessaire</li>
+                        <li>Sauvegardez les modifications</li>
+                    </ol>
+
+                    <h3>Activité Récente</h3>
+                    <p>Votre profil affiche votre activité récente, incluant :</p>
+                    <ul>
+                        <li>Tâches récemment mises à jour</li>
+                        <li>Demandes assignées à votre équipe</li>
+                        <li>Historique des actions</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Troubleshooting Section -->
+            <section id="troubleshooting" class="guide-section">
+                <h2>🔧 Dépannage</h2>
+                <div class="section-content">
+                    <h3>Problèmes Courants</h3>
+                    
+                    <div class="troubleshoot-item">
+                        <h4>❌ Je ne peux pas accéder à certaines fonctionnalités</h4>
+                        <p><strong>Solution :</strong> Vérifiez votre rôle utilisateur. Certaines fonctions sont réservées aux administrateurs et managers.</p>
+                    </div>
+
+                    <div class="troubleshoot-item">
+                        <h4>❌ Mes tâches ne s'affichent pas</h4>
+                        <p><strong>Solution :</strong> Vérifiez les filtres appliqués et assurez-vous que des tâches vous sont bien assignées.</p>
+                    </div>
+
+                    <div class="troubleshoot-item">
+                        <h4>❌ Je ne peux pas créer de tâche pour une demande</h4>
+                        <p><strong>Solution :</strong> Les tâches ne peuvent être assignées qu'aux membres de l'équipe responsable de la demande.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FAQ Section -->
+            <section id="faq" class="guide-section">
+                <h2>❓ Questions Fréquentes</h2>
+                <div class="section-content">
+                    <div class="faq-item">
+                        <h4>Q: Comment changer mon mot de passe ?</h4>
+                        <p>R: Allez dans votre profil et utilisez la section "Changer le mot de passe".</p>
+                    </div>
+
+                    <div class="faq-item">
+                        <h4>Q: Puis-je assigner une tâche à quelqu'un d'une autre équipe ?</h4>
+                        <p>R: Non, les tâches ne peuvent être assignées qu'aux membres de l'équipe responsable de la demande.</p>
+                    </div>
+
+                    <div class="faq-item">
+                        <h4>Q: Comment filtrer les demandes par date ?</h4>
+                        <p>R: Utilisez les filtres de date dans la section "Gestion des demandes".</p>
+                    </div>
+
+                    <div class="faq-item">
+                        <h4>Q: Que signifient les couleurs des temps d'attente ?</h4>
+                        <p>R: Vert (récent), Jaune (modéré), Orange (attention), Rouge (critique - nécessite une action urgente).</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<script src="@Url.Content("~/js/Guide.js")"></script>

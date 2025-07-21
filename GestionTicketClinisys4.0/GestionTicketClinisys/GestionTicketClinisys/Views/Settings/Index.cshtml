@@ -1,0 +1,1561 @@
+@{
+    ViewData["Title"] = "Parametrage";
+}
+
+<link rel="stylesheet" href="@Url.Content("~/css/Settings.css")" />
+
+<div class="container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <div class="page-title">PARAMETRAGE</div>
+            <div class="breadcrumb">
+                <a href="@Url.Action("Menu", "Home")">← Retour au Menu</a>
+                <span>•</span>
+                <span>Parametrage</span>
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-success" onclick="seedAllData()">
+                🌱 Générer Données Test
+            </button>
+            <button class="btn btn-danger" onclick="clearAllData()">
+                🗑️ Vider Base de Données
+            </button>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="nav-tabs">
+        <button class="nav-tab active" onclick="switchTab('users')">
+            👥 Utilisateurs
+        </button>
+        <button class="nav-tab" onclick="switchTab('teams')">
+            🏢 Équipes
+        </button>
+        <button class="nav-tab" onclick="switchTab('clients')">
+            🏥 Clients
+        </button>
+        <button class="nav-tab" onclick="switchTab('modules')">
+            🔧 Modules
+        </button>
+    </div>
+
+    <!-- Users Tab Content -->
+    <div id="users-tab" class="content-wrapper">
+        <div class="content-header">
+            <div class="content-title">Gestion des Utilisateurs</div>
+            <div class="content-actions">
+                <button class="btn btn-success" onclick="openCreateUserModal()">
+                    ➕ Nouvel Utilisateur
+                </button>
+            </div>
+        </div>
+        <div class="content-body">
+            <div class="toolbar">
+                <div class="toolbar-left">
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" class="search-input" placeholder="Rechercher un utilisateur..." id="userSearch">
+                    </div>
+                    <button class="btn btn-info btn-sm" onclick="clearUserFilters()">
+                        🗑️ Effacer Filtres
+                    </button>
+                </div>
+                <div class="toolbar-right">
+                    <div class="filter-group">
+                        <span class="filter-label">Rôle:</span>
+                        <select class="form-control" id="roleFilter" style="width: auto;">
+                            <option value="">Tous</option>
+                            <option value="Administrator">Administrator</option>
+                            <option value="Manager">Manager</option>
+                            <option value="Technician">Technician</option>
+                            <option value="User">User</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <span class="filter-label">Statut:</span>
+                        <select class="form-control" id="statusFilter" style="width: auto;">
+                            <option value="">Tous</option>
+                            <option value="true">Actif</option>
+                            <option value="false">Inactif</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <span id="userFilterCount" class="text-muted" style="font-size: 12px;"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Nom d'utilisateur</th>
+                            <th>Nom complet</th>
+                            <th>Email</th>
+                            <th>Rôle</th>
+                            <th>Département</th>
+                            <th>Équipe</th>
+                            <th>Statut</th>
+                            <th>Dernière connexion</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <tr>
+                            <td colspan="9" class="text-center">
+                                <div class="loading"></div>
+                                Chargement des utilisateurs...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Teams Tab Content -->
+    <div id="teams-tab" class="content-wrapper d-none">
+        <div class="content-header">
+            <div class="content-title">Gestion des Équipes</div>
+            <div class="content-actions">
+                <button class="btn btn-success" onclick="openCreateTeamModal()">
+                    ➕ Nouvelle Équipe
+                </button>
+            </div>
+        </div>
+        <div class="content-body">
+            <div class="toolbar">
+                <div class="toolbar-left">
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" class="search-input" placeholder="Rechercher une équipe..." id="teamSearch">
+                    </div>
+                    <button class="btn btn-info btn-sm" onclick="clearTeamFilters()">
+                        🗑️ Effacer Filtres
+                    </button>
+                </div>
+                <div class="toolbar-right">
+                    <span id="teamFilterCount" class="text-muted" style="font-size: 12px;"></span>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Nom de l'équipe</th>
+                            <th>Nombre d'utilisateurs</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="teamsTableBody">
+                        <tr>
+                            <td colspan="3" class="text-center">
+                                <div class="loading"></div>
+                                Chargement des équipes...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Clients Tab Content -->
+    <div id="clients-tab" class="content-wrapper d-none">
+        <div class="content-header">
+            <div class="content-title">Gestion des Clients</div>
+            <div class="content-actions">
+                <button class="btn btn-success" onclick="openCreateClientModal()">
+                    ➕ Nouveau Client
+                </button>
+            </div>
+        </div>
+        <div class="content-body">
+            <div class="toolbar">
+                <div class="toolbar-left">
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" class="search-input" placeholder="Rechercher un client..." id="clientSearch">
+                    </div>
+                    <button class="btn btn-info btn-sm" onclick="clearClientFilters()">
+                        🗑️ Effacer Filtres
+                    </button>
+                </div>
+                <div class="toolbar-right">
+                    <span id="clientFilterCount" class="text-muted" style="font-size: 12px;"></span>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Nom du client</th>
+                            <th>Email</th>
+                            <th>Nombre de tickets</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientsTableBody">
+                        <tr>
+                            <td colspan="4" class="text-center">
+                                <div class="loading"></div>
+                                Chargement des clients...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modules Tab Content -->
+    <div id="modules-tab" class="content-wrapper d-none">
+        <div class="content-header">
+            <div class="content-title">Gestion des Modules</div>
+            <div class="content-actions">
+                <button class="btn btn-success" onclick="openCreateModuleModal()">
+                    ➕ Nouveau Module
+                </button>
+            </div>
+        </div>
+        <div class="content-body">
+            <div class="toolbar">
+                <div class="toolbar-left">
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" class="search-input" placeholder="Rechercher un module..." id="moduleSearch">
+                    </div>
+                    <button class="btn btn-info btn-sm" onclick="clearModuleFilters()">
+                        🗑️ Effacer Filtres
+                    </button>
+                </div>
+                <div class="toolbar-right">
+                    <span id="moduleFilterCount" class="text-muted" style="font-size: 12px;"></span>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Nom du module</th>
+                            <th>Nombre de tickets</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modulesTableBody">
+                        <tr>
+                            <td colspan="3" class="text-center">
+                                <div class="loading"></div>
+                                Chargement des modules...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- User Modal -->
+<div id="userModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); display: none; justify-content: center; align-items: center; z-index: 99999;">
+    <div id="userModalContent" style="background: white; border-radius: 8px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; position: relative; z-index: 100000; margin: 20px; padding: 0;">
+        <div style="background-color: #2c5282; color: white; padding: 15px 20px; border-radius: 8px 8px 0 0; font-size: 16px; font-weight: bold; position: relative;">
+            <span id="userModalTitle">Nouvel Utilisateur</span>
+            <button onclick="closeUserModal()" style="position: absolute; top: 10px; right: 15px; background: none; border: none; color: white; font-size: 20px; cursor: pointer; width: 30px; height: 30px;">×</button>
+        </div>
+        <div style="padding: 20px;">
+            <form id="userForm">
+                <input type="hidden" id="userId" name="id">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Nom d'utilisateur *</label>
+                        <input type="text" class="form-control" id="userName" name="userName" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email *</label>
+                        <input type="email" class="form-control" id="userEmail" name="email" required>
+                    </div>
+                </div>
+
+                <div class="form-group" id="passwordGroup">
+                    <label class="form-label">Mot de passe *</label>
+                    <input type="password" class="form-control" id="userPassword" name="password">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Prénom</label>
+                        <input type="text" class="form-control" id="userFirstName" name="firstName">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nom</label>
+                        <input type="text" class="form-control" id="userLastName" name="lastName">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Rôle</label>
+                        <select class="form-control form-select" id="userRole" name="role">
+                            <option value="User">User</option>
+                            <option value="Technician">Technician</option>
+                            <option value="Manager">Manager</option>
+                            <option value="Administrator">Administrator</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Département</label>
+                        <select class="form-control form-select" id="userDepartment" name="department">
+                            <option value="">Sélectionner...</option>
+                            <option value="IT">IT</option>
+                            <option value="Support">Support</option>
+                            <option value="Administration">Administration</option>
+                            <option value="Formation">Formation</option>
+                            <option value="Maintenance">Maintenance</option>
+                            <option value="Sécurité">Sécurité</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Poste</label>
+                        <input type="text" class="form-control" id="userPosition" name="position">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Téléphone</label>
+                        <input type="tel" class="form-control" id="userPhone" name="phone">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Équipe</label>
+                        <select class="form-control form-select" id="userTeam" name="teamId">
+                            <option value="0">Aucune équipe</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="statusGroup" style="display: none;">
+                        <label class="form-label">Statut</label>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="userIsActive" name="isActive">
+                            <label class="form-check-label" for="userIsActive">Utilisateur actif</label>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div style="padding: 15px 20px; border-top: 1px solid #dee2e6; display: flex; justify-content: flex-end; gap: 10px;">
+            <button type="button" class="btn btn-secondary" onclick="closeUserModal()">Annuler</button>
+            <button type="button" class="btn btn-primary" onclick="saveUser()">Enregistrer</button>
+        </div>
+    </div>
+</div>
+
+<!-- Team Modal -->
+<div id="teamModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); display: none; justify-content: center; align-items: center; z-index: 99999;">
+    <div id="teamModalContent" style="background: white; border-radius: 8px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; position: relative; z-index: 100000; margin: 20px; padding: 0;">
+        <div style="background-color: #2c5282; color: white; padding: 15px 20px; border-radius: 8px 8px 0 0; font-size: 16px; font-weight: bold; position: relative;">
+            <span id="teamModalTitle">Nouvelle Équipe</span>
+            <button onclick="closeTeamModal()" style="position: absolute; top: 10px; right: 15px; background: none; border: none; color: white; font-size: 20px; cursor: pointer; width: 30px; height: 30px;">×</button>
+        </div>
+        <div style="padding: 20px;">
+            <form id="teamForm">
+                <input type="hidden" id="teamId" name="id">
+                <div class="form-group">
+                    <label class="form-label">Nom de l'équipe *</label>
+                    <input type="text" class="form-control" id="teamName" name="name" required>
+                </div>
+            </form>
+        </div>
+        <div style="padding: 15px 20px; border-top: 1px solid #dee2e6; display: flex; justify-content: flex-end; gap: 10px;">
+            <button type="button" class="btn btn-secondary" onclick="closeTeamModal()">Annuler</button>
+            <button type="button" class="btn btn-primary" onclick="saveTeam()">Enregistrer</button>
+        </div>
+    </div>
+</div>
+
+<!-- Client Modal -->
+<div id="clientModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); display: none; justify-content: center; align-items: center; z-index: 99999;">
+    <div id="clientModalContent" style="background: white; border-radius: 8px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; position: relative; z-index: 100000; margin: 20px; padding: 0;">
+        <div style="background-color: #2c5282; color: white; padding: 15px 20px; border-radius: 8px 8px 0 0; font-size: 16px; font-weight: bold; position: relative;">
+            <span id="clientModalTitle">Nouveau Client</span>
+            <button onclick="closeClientModal()" style="position: absolute; top: 10px; right: 15px; background: none; border: none; color: white; font-size: 20px; cursor: pointer; width: 30px; height: 30px;">×</button>
+        </div>
+        <div style="padding: 20px;">
+            <form id="clientForm">
+                <input type="hidden" id="clientId" name="id">
+                <div class="form-group">
+                    <label class="form-label">Nom du client *</label>
+                    <input type="text" class="form-control" id="clientName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email *</label>
+                    <input type="email" class="form-control" id="clientEmail" name="email" required>
+                </div>
+            </form>
+        </div>
+        <div style="padding: 15px 20px; border-top: 1px solid #dee2e6; display: flex; justify-content: flex-end; gap: 10px;">
+            <button type="button" class="btn btn-secondary" onclick="closeClientModal()">Annuler</button>
+            <button type="button" class="btn btn-primary" onclick="saveClient()">Enregistrer</button>
+        </div>
+    </div>
+</div>
+
+<!-- Module Modal -->
+<div id="moduleModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); display: none; justify-content: center; align-items: center; z-index: 99999;">
+    <div id="moduleModalContent" style="background: white; border-radius: 8px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; position: relative; z-index: 100000; margin: 20px; padding: 0;">
+        <div style="background-color: #2c5282; color: white; padding: 15px 20px; border-radius: 8px 8px 0 0; font-size: 16px; font-weight: bold; position: relative;">
+            <span id="moduleModalTitle">Nouveau Module</span>
+            <button onclick="closeModuleModal()" style="position: absolute; top: 10px; right: 15px; background: none; border: none; color: white; font-size: 20px; cursor: pointer; width: 30px; height: 30px;">×</button>
+        </div>
+        <div style="padding: 20px;">
+            <form id="moduleForm">
+                <input type="hidden" id="moduleId" name="id">
+                <div class="form-group">
+                    <label class="form-label">Nom du module *</label>
+                    <input type="text" class="form-control" id="moduleName" name="name" required>
+                </div>
+            </form>
+        </div>
+        <div style="padding: 15px 20px; border-top: 1px solid #dee2e6; display: flex; justify-content: flex-end; gap: 10px;">
+            <button type="button" class="btn btn-secondary" onclick="closeModuleModal()">Annuler</button>
+            <button type="button" class="btn btn-primary" onclick="saveModule()">Enregistrer</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Global variables
+    let currentTab = 'users';
+    let users = [];
+    let teams = [];
+    let clients = [];
+    let modules = [];
+    let isEditMode = false;
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+        loadUsers();
+        loadTeams();
+        setupSearchFilters();
+    });
+
+    // Tab switching
+    function switchTab(tabName) {
+        // Hide all tabs
+        document.querySelectorAll('.content-wrapper').forEach(tab => {
+            tab.classList.add('d-none');
+        });
+
+        // Remove active class from all nav tabs
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+
+        // Show selected tab
+        document.getElementById(tabName + '-tab').classList.remove('d-none');
+
+        // Add active class to selected nav tab
+        event.target.classList.add('active');
+
+        currentTab = tabName;
+
+        // Load data for the selected tab
+        switch(tabName) {
+            case 'users':
+                if (users.length === 0) loadUsers();
+                break;
+            case 'teams':
+                if (teams.length === 0) loadTeams();
+                break;
+            case 'clients':
+                if (clients.length === 0) loadClients();
+                break;
+            case 'modules':
+                if (modules.length === 0) loadModules();
+                break;
+        }
+    }
+
+    // Load data functions
+    async function loadUsers() {
+        try {
+            const response = await fetch('/Settings/GetUsers');
+            const result = await response.json();
+
+            if (result.success) {
+                users = result.data;
+                renderUsersTable();
+                loadTeamsForDropdown();
+                updateFilterCounts();
+            } else {
+                showError('Erreur lors du chargement des utilisateurs: ' + result.message);
+            }
+        } catch (error) {
+            showError('Erreur de connexion: ' + error.message);
+        }
+    }
+
+    async function loadTeams() {
+        try {
+            const response = await fetch('/Settings/GetTeams');
+            const result = await response.json();
+
+            if (result.success) {
+                teams = result.data;
+                renderTeamsTable();
+                updateFilterCounts();
+            } else {
+                showError('Erreur lors du chargement des équipes: ' + result.message);
+            }
+        } catch (error) {
+            showError('Erreur de connexion: ' + error.message);
+        }
+    }
+
+    async function loadClients() {
+        try {
+            const response = await fetch('/Settings/GetClients');
+            const result = await response.json();
+
+            if (result.success) {
+                clients = result.data;
+                renderClientsTable();
+                updateFilterCounts();
+            } else {
+                showError('Erreur lors du chargement des clients: ' + result.message);
+            }
+        } catch (error) {
+            showError('Erreur de connexion: ' + error.message);
+        }
+    }
+
+    async function loadModules() {
+        try {
+            const response = await fetch('/Settings/GetModules');
+            const result = await response.json();
+
+            if (result.success) {
+                modules = result.data;
+                renderModulesTable();
+                updateFilterCounts();
+            } else {
+                showError('Erreur lors du chargement des modules: ' + result.message);
+            }
+        } catch (error) {
+            showError('Erreur de connexion: ' + error.message);
+        }
+    }
+
+    // Render table functions
+    function renderUsersTable(dataToRender = null) {
+        const tbody = document.getElementById('usersTableBody');
+        const usersToRender = dataToRender || users;
+
+        if (usersToRender.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" class="text-center">Aucun utilisateur trouvé</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = usersToRender.map(user => `
+            <tr>
+                <td>${user.userName}</td>
+                <td>${(user.firstName || '') + ' ' + (user.lastName || '')}</td>
+                <td>${user.email || ''}</td>
+                <td><span class="badge badge-info">${user.role || 'User'}</span></td>
+                <td>${user.department || '-'}</td>
+                <td>${user.teamName || '-'}</td>
+                <td>
+                    <span class="badge ${user.isActive ? 'badge-success' : 'badge-danger'}">
+                        ${user.isActive ? 'Actif' : 'Inactif'}
+                    </span>
+                </td>
+                <td>${user.lastLogin ? new Date(user.lastLogin).toLocaleDateString('fr-FR') : 'Jamais'}</td>
+                <td>
+                    <button class="btn btn-sm btn-warning" onclick="editUser(${user.id})">✏️</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteUser(${user.id})">🗑️</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function renderTeamsTable(dataToRender = null) {
+        const tbody = document.getElementById('teamsTableBody');
+        const teamsToRender = dataToRender || teams;
+
+        if (teamsToRender.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" class="text-center">Aucune équipe trouvée</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = teamsToRender.map(team => `
+            <tr>
+                <td>${team.name}</td>
+                <td>${team.userCount}</td>
+                <td>
+                    <button class="btn btn-sm btn-warning" onclick="editTeam(${team.id})">✏️</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteTeam(${team.id})">🗑️</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function renderClientsTable(dataToRender = null) {
+        const tbody = document.getElementById('clientsTableBody');
+        const clientsToRender = dataToRender || clients;
+
+        if (clientsToRender.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center">Aucun client trouvé</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = clientsToRender.map(client => `
+            <tr>
+                <td>${client.name}</td>
+                <td>${client.email}</td>
+                <td>${client.ticketCount}</td>
+                <td>
+                    <button class="btn btn-sm btn-warning" onclick="editClient(${client.id})">✏️</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteClient(${client.id})">🗑️</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function renderModulesTable(dataToRender = null) {
+        const tbody = document.getElementById('modulesTableBody');
+        const modulesToRender = dataToRender || modules;
+
+        if (modulesToRender.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" class="text-center">Aucun module trouvé</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = modulesToRender.map(module => `
+            <tr>
+                <td>${module.name}</td>
+                <td>${module.ticketCount}</td>
+                <td>
+                    <button class="btn btn-sm btn-warning" onclick="editModule(${module.id})">✏️</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteModule(${module.id})">🗑️</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // User Modal Functions
+    function openCreateUserModal() {
+        isEditMode = false;
+        document.getElementById('userModalTitle').textContent = 'Nouvel Utilisateur';
+        document.getElementById('userForm').reset();
+        document.getElementById('userId').value = '';
+        document.getElementById('passwordGroup').style.display = 'block';
+        document.getElementById('statusGroup').style.display = 'none';
+
+        const modal = document.getElementById('userModal');
+        const modalContent = document.getElementById('userModalContent');
+
+        // Reset any previous styles
+        modal.style.cssText = '';
+        modalContent.style.cssText = '';
+
+        // Apply explicit styles like in Gestion Demandes
+        modal.style.display = 'flex';
+        modal.style.position = 'fixed';
+        modal.style.top = '0';
+        modal.style.left = '0';
+        modal.style.width = '100%';
+        modal.style.height = '100%';
+        modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+        modal.style.justifyContent = 'center';
+        modal.style.alignItems = 'center';
+        modal.style.zIndex = '99999';
+
+        modalContent.style.display = 'block';
+        modalContent.style.visibility = 'visible';
+        modalContent.style.opacity = '1';
+        modalContent.style.position = 'relative';
+        modalContent.style.zIndex = '100000';
+        modalContent.style.background = 'white';
+        modalContent.style.borderRadius = '8px';
+        modalContent.style.width = '90%';
+        modalContent.style.maxWidth = '600px';
+        modalContent.style.maxHeight = '90vh';
+        modalContent.style.overflow = 'auto';
+    }
+
+    function editUser(id) {
+        const user = users.find(u => u.id === id);
+        if (!user) return;
+
+        isEditMode = true;
+        document.getElementById('userModalTitle').textContent = 'Modifier Utilisateur';
+        document.getElementById('userId').value = user.id;
+        document.getElementById('userName').value = user.userName;
+        document.getElementById('userEmail').value = user.email;
+        document.getElementById('userFirstName').value = user.firstName || '';
+        document.getElementById('userLastName').value = user.lastName || '';
+        document.getElementById('userRole').value = user.role || 'User';
+        document.getElementById('userDepartment').value = user.department || '';
+        document.getElementById('userPosition').value = user.position || '';
+        document.getElementById('userPhone').value = user.phone || '';
+        document.getElementById('userTeam').value = user.teamId || '0';
+        document.getElementById('userIsActive').checked = user.isActive;
+
+        document.getElementById('passwordGroup').style.display = 'none';
+        document.getElementById('statusGroup').style.display = 'block';
+
+        const modal = document.getElementById('userModal');
+        const modalContent = document.getElementById('userModalContent');
+
+        // Apply explicit styles like in Gestion Demandes
+        modal.style.display = 'flex';
+        modal.style.position = 'fixed';
+        modal.style.top = '0';
+        modal.style.left = '0';
+        modal.style.width = '100%';
+        modal.style.height = '100%';
+        modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+        modal.style.justifyContent = 'center';
+        modal.style.alignItems = 'center';
+        modal.style.zIndex = '99999';
+
+        modalContent.style.display = 'block';
+        modalContent.style.visibility = 'visible';
+        modalContent.style.opacity = '1';
+    }
+
+    function closeUserModal() {
+        document.getElementById('userModal').style.display = 'none';
+    }
+
+    async function saveUser() {
+        const form = document.getElementById('userForm');
+        const formData = new FormData(form);
+
+        const userData = {
+            id: parseInt(formData.get('id')) || 0,
+            userName: formData.get('userName'),
+            email: formData.get('email'),
+            password: formData.get('password'),
+            firstName: formData.get('firstName'),
+            lastName: formData.get('lastName'),
+            role: formData.get('role'),
+            department: formData.get('department'),
+            position: formData.get('position'),
+            phone: formData.get('phone'),
+            teamId: parseInt(formData.get('teamId')) || 0,
+            isActive: document.getElementById('userIsActive').checked
+        };
+
+        try {
+            const url = isEditMode ? '/Settings/UpdateUser' : '/Settings/CreateUser';
+            const method = isEditMode ? 'PUT' : 'POST';
+
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userData)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showSuccess(result.message);
+                closeUserModal();
+                loadUsers();
+            } else {
+                showError(result.message);
+            }
+        } catch (error) {
+            showError('Erreur de connexion: ' + error.message);
+        }
+    }
+
+    async function deleteUser(id) {
+        if (!confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/Settings/DeleteUser?id=${id}`, {
+                method: 'DELETE'
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showSuccess(result.message);
+                loadUsers();
+            } else {
+                showError(result.message);
+            }
+        } catch (error) {
+            showError('Erreur de connexion: ' + error.message);
+        }
+    }
+
+    // Team Modal Functions
+    function openCreateTeamModal() {
+        isEditMode = false;
+        document.getElementById('teamModalTitle').textContent = 'Nouvelle Équipe';
+        document.getElementById('teamForm').reset();
+        document.getElementById('teamId').value = '';
+
+        const modal = document.getElementById('teamModal');
+        const modalContent = document.getElementById('teamModalContent');
+
+        // Apply explicit styles like in Gestion Demandes
+        modal.style.display = 'flex';
+        modal.style.position = 'fixed';
+        modal.style.top = '0';
+        modal.style.left = '0';
+        modal.style.width = '100%';
+        modal.style.height = '100%';
+        modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+        modal.style.justifyContent = 'center';
+        modal.style.alignItems = 'center';
+        modal.style.zIndex = '99999';
+
+        modalContent.style.display = 'block';
+        modalContent.style.visibility = 'visible';
+        modalContent.style.opacity = '1';
+    }
+
+    function editTeam(id) {
+        const team = teams.find(t => t.id === id);
+        if (!team) return;
+
+        isEditMode = true;
+        document.getElementById('teamModalTitle').textContent = 'Modifier Équipe';
+        document.getElementById('teamId').value = team.id;
+        document.getElementById('teamName').value = team.name;
+
+        const modal = document.getElementById('teamModal');
+        modal.style.display = 'flex';
+        modal.style.position = 'fixed';
+        modal.style.top = '0';
+        modal.style.left = '0';
+        modal.style.width = '100%';
+        modal.style.height = '100%';
+        modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+        modal.style.justifyContent = 'center';
+        modal.style.alignItems = 'center';
+        modal.style.zIndex = '99999';
+    }
+
+    function closeTeamModal() {
+        document.getElementById('teamModal').style.display = 'none';
+    }
+
+    async function saveTeam() {
+        const form = document.getElementById('teamForm');
+        const formData = new FormData(form);
+
+        const teamData = {
+            id: parseInt(formData.get('id')) || 0,
+            name: formData.get('name')
+        };
+
+        try {
+            const url = isEditMode ? '/Settings/UpdateTeam' : '/Settings/CreateTeam';
+            const method = isEditMode ? 'PUT' : 'POST';
+
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(teamData)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showSuccess(result.message);
+                closeTeamModal();
+                loadTeams();
+                loadTeamsForDropdown(); // Refresh dropdown
+            } else {
+                showError(result.message);
+            }
+        } catch (error) {
+            showError('Erreur de connexion: ' + error.message);
+        }
+    }
+
+    async function deleteTeam(id) {
+        if (!confirm('Êtes-vous sûr de vouloir supprimer cette équipe ?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/Settings/DeleteTeam?id=${id}`, {
+                method: 'DELETE'
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showSuccess(result.message);
+                loadTeams();
+                loadTeamsForDropdown(); // Refresh dropdown
+            } else {
+                showError(result.message);
+            }
+        } catch (error) {
+            showError('Erreur de connexion: ' + error.message);
+        }
+    }
+
+    // Client Modal Functions
+    function openCreateClientModal() {
+        isEditMode = false;
+        document.getElementById('clientModalTitle').textContent = 'Nouveau Client';
+        document.getElementById('clientForm').reset();
+        document.getElementById('clientId').value = '';
+
+        const modal = document.getElementById('clientModal');
+        const modalContent = document.getElementById('clientModalContent');
+
+        // Apply explicit styles like in Gestion Demandes
+        modal.style.display = 'flex';
+        modal.style.position = 'fixed';
+        modal.style.top = '0';
+        modal.style.left = '0';
+        modal.style.width = '100%';
+        modal.style.height = '100%';
+        modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+        modal.style.justifyContent = 'center';
+        modal.style.alignItems = 'center';
+        modal.style.zIndex = '99999';
+
+        modalContent.style.display = 'block';
+        modalContent.style.visibility = 'visible';
+        modalContent.style.opacity = '1';
+    }
+
+    function editClient(id) {
+        const client = clients.find(c => c.id === id);
+        if (!client) return;
+
+        isEditMode = true;
+        document.getElementById('clientModalTitle').textContent = 'Modifier Client';
+        document.getElementById('clientId').value = client.id;
+        document.getElementById('clientName').value = client.name;
+        document.getElementById('clientEmail').value = client.email;
+
+        const modal = document.getElementById('clientModal');
+        modal.style.display = 'flex';
+        modal.style.position = 'fixed';
+        modal.style.top = '0';
+        modal.style.left = '0';
+        modal.style.width = '100%';
+        modal.style.height = '100%';
+        modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+        modal.style.justifyContent = 'center';
+        modal.style.alignItems = 'center';
+        modal.style.zIndex = '99999';
+    }
+
+    function closeClientModal() {
+        document.getElementById('clientModal').style.display = 'none';
+    }
+
+    async function saveClient() {
+        const form = document.getElementById('clientForm');
+        const formData = new FormData(form);
+
+        const clientData = {
+            id: parseInt(formData.get('id')) || 0,
+            name: formData.get('name'),
+            email: formData.get('email')
+        };
+
+        try {
+            const url = isEditMode ? '/Settings/UpdateClient' : '/Settings/CreateClient';
+            const method = isEditMode ? 'PUT' : 'POST';
+
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(clientData)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showSuccess(result.message);
+                closeClientModal();
+                loadClients();
+            } else {
+                showError(result.message);
+            }
+        } catch (error) {
+            showError('Erreur de connexion: ' + error.message);
+        }
+    }
+
+    async function deleteClient(id) {
+        if (!confirm('Êtes-vous sûr de vouloir supprimer ce client ?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/Settings/DeleteClient?id=${id}`, {
+                method: 'DELETE'
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showSuccess(result.message);
+                loadClients();
+            } else {
+                showError(result.message);
+            }
+        } catch (error) {
+            showError('Erreur de connexion: ' + error.message);
+        }
+    }
+
+    // Module Modal Functions
+    function openCreateModuleModal() {
+        isEditMode = false;
+        document.getElementById('moduleModalTitle').textContent = 'Nouveau Module';
+        document.getElementById('moduleForm').reset();
+        document.getElementById('moduleId').value = '';
+
+        const modal = document.getElementById('moduleModal');
+        const modalContent = document.getElementById('moduleModalContent');
+
+        // Apply explicit styles like in Gestion Demandes
+        modal.style.display = 'flex';
+        modal.style.position = 'fixed';
+        modal.style.top = '0';
+        modal.style.left = '0';
+        modal.style.width = '100%';
+        modal.style.height = '100%';
+        modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+        modal.style.justifyContent = 'center';
+        modal.style.alignItems = 'center';
+        modal.style.zIndex = '99999';
+
+        modalContent.style.display = 'block';
+        modalContent.style.visibility = 'visible';
+        modalContent.style.opacity = '1';
+    }
+
+    function editModule(id) {
+        const module = modules.find(m => m.id === id);
+        if (!module) return;
+
+        isEditMode = true;
+        document.getElementById('moduleModalTitle').textContent = 'Modifier Module';
+        document.getElementById('moduleId').value = module.id;
+        document.getElementById('moduleName').value = module.name;
+
+        const modal = document.getElementById('moduleModal');
+        modal.style.display = 'flex';
+        modal.style.position = 'fixed';
+        modal.style.top = '0';
+        modal.style.left = '0';
+        modal.style.width = '100%';
+        modal.style.height = '100%';
+        modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+        modal.style.justifyContent = 'center';
+        modal.style.alignItems = 'center';
+        modal.style.zIndex = '99999';
+    }
+
+    function closeModuleModal() {
+        document.getElementById('moduleModal').style.display = 'none';
+    }
+
+    async function saveModule() {
+        const form = document.getElementById('moduleForm');
+        const formData = new FormData(form);
+
+        const moduleData = {
+            id: parseInt(formData.get('id')) || 0,
+            name: formData.get('name')
+        };
+
+        try {
+            const url = isEditMode ? '/Settings/UpdateModule' : '/Settings/CreateModule';
+            const method = isEditMode ? 'PUT' : 'POST';
+
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(moduleData)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showSuccess(result.message);
+                closeModuleModal();
+                loadModules();
+            } else {
+                showError(result.message);
+            }
+        } catch (error) {
+            showError('Erreur de connexion: ' + error.message);
+        }
+    }
+
+    async function deleteModule(id) {
+        if (!confirm('Êtes-vous sûr de vouloir supprimer ce module ?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/Settings/DeleteModule?id=${id}`, {
+                method: 'DELETE'
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showSuccess(result.message);
+                loadModules();
+            } else {
+                showError(result.message);
+            }
+        } catch (error) {
+            showError('Erreur de connexion: ' + error.message);
+        }
+    }
+
+    // Utility functions
+    function showError(message) {
+        alert('Erreur: ' + message);
+    }
+
+    function showSuccess(message) {
+        alert('Succès: ' + message);
+    }
+
+    async function loadTeamsForDropdown() {
+        try {
+            const response = await fetch('/Settings/GetTeams');
+            const result = await response.json();
+
+            if (result.success) {
+                const select = document.getElementById('userTeam');
+                select.innerHTML = '<option value="0">Aucune équipe</option>';
+
+                result.data.forEach(team => {
+                    const option = document.createElement('option');
+                    option.value = team.id;
+                    option.textContent = team.name;
+                    select.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error('Error loading teams for dropdown:', error);
+        }
+    }
+
+    // Search and filter setup
+    function setupSearchFilters() {
+        // User search - real-time
+        document.getElementById('userSearch').addEventListener('input', function() {
+            filterUsers();
+        });
+
+        // Role filter
+        document.getElementById('roleFilter').addEventListener('change', function() {
+            filterUsers();
+        });
+
+        // Status filter
+        document.getElementById('statusFilter').addEventListener('change', function() {
+            filterUsers();
+        });
+
+        // Team search - real-time
+        document.getElementById('teamSearch').addEventListener('input', function() {
+            filterTeams();
+        });
+
+        // Client search - real-time
+        document.getElementById('clientSearch').addEventListener('input', function() {
+            filterClients();
+        });
+
+        // Module search - real-time
+        document.getElementById('moduleSearch').addEventListener('input', function() {
+            filterModules();
+        });
+    }
+
+    // Filter functions
+    function filterUsers() {
+        const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+        const roleFilter = document.getElementById('roleFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+
+        const filteredUsers = users.filter(user => {
+            // Search in multiple fields
+            const searchMatch = !searchTerm ||
+                (user.userName && user.userName.toLowerCase().includes(searchTerm)) ||
+                (user.email && user.email.toLowerCase().includes(searchTerm)) ||
+                (user.firstName && user.firstName.toLowerCase().includes(searchTerm)) ||
+                (user.lastName && user.lastName.toLowerCase().includes(searchTerm)) ||
+                (user.department && user.department.toLowerCase().includes(searchTerm)) ||
+                (user.position && user.position.toLowerCase().includes(searchTerm));
+
+            // Role filter
+            const roleMatch = !roleFilter || user.role === roleFilter;
+
+            // Status filter
+            const statusMatch = !statusFilter || user.isActive.toString() === statusFilter;
+
+            return searchMatch && roleMatch && statusMatch;
+        });
+
+        // Use highlighting for users
+        if (searchTerm) {
+            renderUsersTableWithHighlight(filteredUsers, searchTerm);
+        } else {
+            renderUsersTable(filteredUsers);
+        }
+        updateFilterCounts();
+    }
+
+    function filterTeams() {
+        const searchTerm = document.getElementById('teamSearch').value.toLowerCase();
+
+        const filteredTeams = teams.filter(team => {
+            return !searchTerm || team.name.toLowerCase().includes(searchTerm);
+        });
+
+        // Use highlighting for teams
+        if (searchTerm) {
+            renderTeamsTableWithHighlight(filteredTeams, searchTerm);
+        } else {
+            renderTeamsTable(filteredTeams);
+        }
+        updateFilterCounts();
+    }
+
+    function filterClients() {
+        const searchTerm = document.getElementById('clientSearch').value.toLowerCase();
+
+        const filteredClients = clients.filter(client => {
+            return !searchTerm ||
+                client.name.toLowerCase().includes(searchTerm) ||
+                client.email.toLowerCase().includes(searchTerm);
+        });
+
+        // Use highlighting for clients
+        if (searchTerm) {
+            renderClientsTableWithHighlight(filteredClients, searchTerm);
+        } else {
+            renderClientsTable(filteredClients);
+        }
+        updateFilterCounts();
+    }
+
+    function filterModules() {
+        const searchTerm = document.getElementById('moduleSearch').value.toLowerCase();
+
+        const filteredModules = modules.filter(module => {
+            return !searchTerm || module.name.toLowerCase().includes(searchTerm);
+        });
+
+        // Use highlighting for modules
+        if (searchTerm) {
+            renderModulesTableWithHighlight(filteredModules, searchTerm);
+        } else {
+            renderModulesTable(filteredModules);
+        }
+        updateFilterCounts();
+    }
+
+    // Clear filter functions
+    function clearUserFilters() {
+        document.getElementById('userSearch').value = '';
+        document.getElementById('roleFilter').value = '';
+        document.getElementById('statusFilter').value = '';
+        renderUsersTable();
+        updateFilterCounts();
+    }
+
+    function clearTeamFilters() {
+        document.getElementById('teamSearch').value = '';
+        renderTeamsTable();
+        updateFilterCounts();
+    }
+
+    function clearClientFilters() {
+        document.getElementById('clientSearch').value = '';
+        renderClientsTable();
+        updateFilterCounts();
+    }
+
+    function clearModuleFilters() {
+        document.getElementById('moduleSearch').value = '';
+        renderModulesTable();
+        updateFilterCounts();
+    }
+
+    // Update filter counts
+    function updateFilterCounts() {
+        // Users count
+        const userSearchTerm = document.getElementById('userSearch').value.toLowerCase();
+        const roleFilter = document.getElementById('roleFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+
+        const filteredUsersCount = users.filter(user => {
+            const searchMatch = !userSearchTerm ||
+                (user.userName && user.userName.toLowerCase().includes(userSearchTerm)) ||
+                (user.email && user.email.toLowerCase().includes(userSearchTerm)) ||
+                (user.firstName && user.firstName.toLowerCase().includes(userSearchTerm)) ||
+                (user.lastName && user.lastName.toLowerCase().includes(userSearchTerm)) ||
+                (user.department && user.department.toLowerCase().includes(userSearchTerm)) ||
+                (user.position && user.position.toLowerCase().includes(userSearchTerm));
+            const roleMatch = !roleFilter || user.role === roleFilter;
+            const statusMatch = !statusFilter || user.isActive.toString() === statusFilter;
+            return searchMatch && roleMatch && statusMatch;
+        }).length;
+
+        document.getElementById('userFilterCount').textContent =
+            `${filteredUsersCount} sur ${users.length} utilisateurs`;
+
+        // Teams count
+        const teamSearchTerm = document.getElementById('teamSearch').value.toLowerCase();
+        const filteredTeamsCount = teams.filter(team =>
+            !teamSearchTerm || team.name.toLowerCase().includes(teamSearchTerm)
+        ).length;
+        document.getElementById('teamFilterCount').textContent =
+            `${filteredTeamsCount} sur ${teams.length} équipes`;
+
+        // Clients count
+        const clientSearchTerm = document.getElementById('clientSearch').value.toLowerCase();
+        const filteredClientsCount = clients.filter(client =>
+            !clientSearchTerm ||
+            client.name.toLowerCase().includes(clientSearchTerm) ||
+            client.email.toLowerCase().includes(clientSearchTerm)
+        ).length;
+        document.getElementById('clientFilterCount').textContent =
+            `${filteredClientsCount} sur ${clients.length} clients`;
+
+        // Modules count
+        const moduleSearchTerm = document.getElementById('moduleSearch').value.toLowerCase();
+        const filteredModulesCount = modules.filter(module =>
+            !moduleSearchTerm || module.name.toLowerCase().includes(moduleSearchTerm)
+        ).length;
+        document.getElementById('moduleFilterCount').textContent =
+            `${filteredModulesCount} sur ${modules.length} modules`;
+    }
+
+    // Highlight search terms
+    function highlightText(text, searchTerm) {
+        if (!searchTerm || !text) return text;
+
+        const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+        return text.replace(regex, '<mark style="background-color: #ffeb3b; padding: 1px 2px;">$1</mark>');
+    }
+
+    // Enhanced render functions with highlighting
+    function renderUsersTableWithHighlight(dataToRender, searchTerm = '') {
+        const tbody = document.getElementById('usersTableBody');
+        const usersToRender = dataToRender || users;
+
+        if (usersToRender.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" class="text-center">Aucun utilisateur trouvé</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = usersToRender.map(user => `
+            <tr>
+                <td>${highlightText(user.userName, searchTerm)}</td>
+                <td>${highlightText((user.firstName || '') + ' ' + (user.lastName || ''), searchTerm)}</td>
+                <td>${highlightText(user.email || '', searchTerm)}</td>
+                <td><span class="badge badge-info">${user.role || 'User'}</span></td>
+                <td>${highlightText(user.department || '-', searchTerm)}</td>
+                <td>${user.teamName || '-'}</td>
+                <td>
+                    <span class="badge ${user.isActive ? 'badge-success' : 'badge-danger'}">
+                        ${user.isActive ? 'Actif' : 'Inactif'}
+                    </span>
+                </td>
+                <td>${user.lastLogin ? new Date(user.lastLogin).toLocaleDateString('fr-FR') : 'Jamais'}</td>
+                <td>
+                    <button class="btn btn-sm btn-warning" onclick="editUser(${user.id})">✏️</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteUser(${user.id})">🗑️</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function renderTeamsTableWithHighlight(dataToRender, searchTerm = '') {
+        const tbody = document.getElementById('teamsTableBody');
+        const teamsToRender = dataToRender || teams;
+
+        if (teamsToRender.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" class="text-center">Aucune équipe trouvée</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = teamsToRender.map(team => `
+            <tr>
+                <td>${highlightText(team.name, searchTerm)}</td>
+                <td>${team.userCount}</td>
+                <td>
+                    <button class="btn btn-sm btn-warning" onclick="editTeam(${team.id})">✏️</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteTeam(${team.id})">🗑️</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function renderClientsTableWithHighlight(dataToRender, searchTerm = '') {
+        const tbody = document.getElementById('clientsTableBody');
+        const clientsToRender = dataToRender || clients;
+
+        if (clientsToRender.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center">Aucun client trouvé</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = clientsToRender.map(client => `
+            <tr>
+                <td>${highlightText(client.name, searchTerm)}</td>
+                <td>${highlightText(client.email, searchTerm)}</td>
+                <td>${client.ticketCount}</td>
+                <td>
+                    <button class="btn btn-sm btn-warning" onclick="editClient(${client.id})">✏️</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteClient(${client.id})">🗑️</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function renderModulesTableWithHighlight(dataToRender, searchTerm = '') {
+        const tbody = document.getElementById('modulesTableBody');
+        const modulesToRender = dataToRender || modules;
+
+        if (modulesToRender.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" class="text-center">Aucun module trouvé</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = modulesToRender.map(module => `
+            <tr>
+                <td>${highlightText(module.name, searchTerm)}</td>
+                <td>${module.ticketCount}</td>
+                <td>
+                    <button class="btn btn-sm btn-warning" onclick="editModule(${module.id})">✏️</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteModule(${module.id})">🗑️</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // Data seeding functions
+    async function seedAllData() {
+        if (!confirm('Cela va créer des données de test (utilisateurs, clients, équipes, modules, tickets). Continuer ?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch('/Home/SeedAllData');
+            const result = await response.json();
+
+            if (result.success) {
+                showSuccess(result.message);
+                // Refresh all data
+                loadUsers();
+                loadTeams();
+                loadClients();
+                loadModules();
+            } else {
+                showError(result.message);
+            }
+        } catch (error) {
+            showError('Erreur de connexion: ' + error.message);
+        }
+    }
+
+    async function clearAllData() {
+        if (!confirm('ATTENTION: Cela va supprimer TOUTES les données de la base. Cette action est irréversible. Continuer ?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch('/Home/ClearAllData');
+            const result = await response.json();
+
+            if (result.success) {
+                showSuccess(result.message);
+                // Clear all tables
+                users = [];
+                teams = [];
+                clients = [];
+                modules = [];
+                renderUsersTable();
+                renderTeamsTable();
+                renderClientsTable();
+                renderModulesTable();
+            } else {
+                showError(result.message);
+            }
+        } catch (error) {
+            showError('Erreur de connexion: ' + error.message);
+        }
+    }
+
+    // Close modals when clicking outside (like in Gestion Demandes)
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('userModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeUserModal();
+            }
+        });
+
+        document.getElementById('teamModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeTeamModal();
+            }
+        });
+
+        document.getElementById('clientModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeClientModal();
+            }
+        });
+
+        document.getElementById('moduleModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModuleModal();
+            }
+        });
+
+        // Handle ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeUserModal();
+                closeTeamModal();
+                closeClientModal();
+                closeModuleModal();
+            }
+        });
+    });
+</script>

@@ -1,0 +1,401 @@
+@model IEnumerable<GestionTicketClinisys.Models.TaskItem>
+
+@{
+    ViewData["Title"] = "Gestion des Classes de Demandes";
+}
+
+<!-- Prevent caching -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<!-- Page version identifier -->
+<meta name="page-version" content="3.0-@DateTime.Now.Ticks">
+<link rel="stylesheet" href="~/css/GestionDemandes.css" />
+
+<div class="header">
+    <div class="header-left">
+        <a href="@Url.Action("Menu", "Home")" class="btn btn-outline-secondary btn-sm" style="margin-right: 15px; text-decoration: none;">
+            ← Retour au Menu
+        </a>
+        <h1 style="display: inline-block; margin: 0;">GESTION DES CLASSES DE DEMANDES</h1>
+    </div>
+    <div class="header-actions">
+        <button class="btn btn-success" onclick="openCreateTaskModal()">+ Nouvelle Tâche</button>
+        <button class="btn btn-secondary" onclick="refreshTasks()">🔄 Actualiser</button>
+        <button class="btn btn-danger" id="deleteBtn" onclick="deleteSelectedTasks()" disabled>🗑️ Supprimer</button>
+    </div>
+</div>
+
+<div class="controls">
+    <div class="search-filters">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Rechercher..." />
+        </div>
+        <div class="filter-group">
+            <label>Statut:</label>
+            <select id="statusFilter">
+                <option value="">Tous</option>
+                <option value="NotStarted">Non commencé</option>
+                <option value="InProgress">En cours</option>
+                <option value="Completed">Terminé</option>
+                <option value="Cancelled">Annulé</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Utilisateur:</label>
+            <select id="userFilter">
+                <option value="">Tous</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <button class="btn btn-secondary" onclick="clearFilters()">🔄 Effacer les filtres</button>
+        </div>
+    </div>
+</div>
+
+<div class="table-container">
+    <table class="data-table" id="tasksTable">
+        <thead>
+            <tr>
+                <th><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
+                <th>Titre</th>
+                <th>Description</th>
+                <th>Demande</th>
+                <th>Client</th>
+                <th>Assigné à</th>
+                <th>Statut</th>
+                <th>Créé le</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                @foreach (var task in Model)
+                {
+                    <tr data-task-id="@task.Id">
+                        <td><input type="checkbox" class="task-checkbox" value="@task.Id"></td>
+                        <td><strong>@task.Title</strong></td>
+                        <td>
+                            <div class="description-cell">
+                                @(task.Description.Length > 100 ? task.Description.Substring(0, 100) + "..." : task.Description)
+                            </div>
+                        </td>
+                        <td>@task.Ticket?.Title</td>
+                        <td>@task.Ticket?.Client?.Name</td>
+                        <td>@task.AssignedUser?.UserName</td>
+                        <td>
+                            <span class="status-badge status-@task.Status.ToString().ToLower()">
+                                @GetStatusDisplayName(task.Status)
+                            </span>
+                        </td>
+                        <td>@task.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>
+                            <button class="btn btn-primary" onclick="openEditTaskModal(@task.Id)" title="Modifier">✏️</button>
+                            <button class="btn btn-danger" onclick="deleteTask(@task.Id)" title="Supprimer">🗑️</button>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="9" class="text-center">
+                        <div class="empty-state">
+                            <i class="fas fa-tasks fa-3x"></i>
+                            <h3>Aucune tâche trouvée</h3>
+                            <p>Aucune tâche n'a été créée pour le moment.</p>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Create Task Modal -->
+<div id="createTaskModalOverlay" class="modern-modal-overlay">
+    <div class="modern-modal-content">
+        <div class="modern-modal-header modern-modal-header-success">
+            <h3 class="modern-modal-title">
+                <span class="modal-icon">➕</span>
+                CRÉER UNE NOUVELLE TÂCHE
+            </h3>
+            <button onclick="closeCreateTaskModal()" class="modern-modal-close">&times;</button>
+        </div>
+
+        <div class="modern-modal-body">
+            <form id="createTaskForm">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Titre *</label>
+                        <input type="text" id="createTaskTitle" required style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Demande *</label>
+                        <select id="createTaskTicket" required style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+                            <option value="">Sélectionner une demande...</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Assigné à *</label>
+                    <select id="createTaskAssignedUser" required style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+                        <option value="">Sélectionner un utilisateur...</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Description *</label>
+                    <textarea id="createTaskDescription" required rows="4" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px; resize: vertical;"></textarea>
+                </div>
+            </form>
+        </div>
+
+        <div class="modern-modal-footer">
+            <button type="button" onclick="closeCreateTaskModal()" class="modern-btn modern-btn-secondary">
+                <span class="btn-icon">❌</span>
+                Annuler
+            </button>
+            <button type="button" onclick="createTask()" class="modern-btn modern-btn-success">
+                <span class="btn-icon">✅</span>
+                Créer la tâche
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Task Modal -->
+<div id="editTaskModalOverlay" class="modern-modal-overlay">
+    <div class="modern-modal-content">
+        <div class="modern-modal-header">
+            <h3 class="modern-modal-title">
+                <span class="modal-icon">✏️</span>
+                MODIFIER LA TÂCHE
+            </h3>
+            <button onclick="closeEditTaskModal()" class="modern-modal-close">&times;</button>
+        </div>
+
+        <div class="modern-modal-body">
+            <form id="editTaskForm">
+                <input type="hidden" id="editTaskId">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Titre *</label>
+                        <input type="text" id="editTaskTitle" required style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Statut</label>
+                        <select id="editTaskStatus" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+                            <option value="NotStarted">Non commencé</option>
+                            <option value="InProgress">En cours</option>
+                            <option value="Completed">Terminé</option>
+                            <option value="Cancelled">Annulé</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Assigné à *</label>
+                    <select id="editTaskAssignedUser" required style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+                        <option value="">Sélectionner un utilisateur...</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Description *</label>
+                    <textarea id="editTaskDescription" required rows="4" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px; resize: vertical;"></textarea>
+                </div>
+            </form>
+        </div>
+
+        <div class="modern-modal-footer">
+            <button type="button" onclick="closeEditTaskModal()" class="modern-btn modern-btn-secondary">
+                <span class="btn-icon">❌</span>
+                Annuler
+            </button>
+            <button type="button" onclick="updateTask()" class="modern-btn modern-btn-primary">
+                <span class="btn-icon">💾</span>
+                Mettre à jour
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Modern Modal Styles */
+.modern-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6));
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modern-modal-content {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 8px 32px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow: hidden;
+    position: relative;
+    z-index: 100000;
+    margin: 20px;
+    animation: slideIn 0.3s ease-out;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.modern-modal-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px 25px;
+    position: relative;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modern-modal-header-success {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+}
+
+.modern-modal-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.modal-icon {
+    font-size: 20px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.modern-modal-close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.modern-modal-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+.modern-modal-body {
+    padding: 25px;
+    max-height: calc(90vh - 140px);
+    overflow-y: auto;
+}
+
+.modern-modal-footer {
+    padding: 20px 25px;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.modern-btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    min-width: 120px;
+    justify-content: center;
+}
+
+.modern-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.modern-btn-primary {
+    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+    color: white;
+}
+
+.modern-btn-primary:hover {
+    background: linear-gradient(135deg, #3182ce 0%, #2c5282 100%);
+}
+
+.modern-btn-secondary {
+    background: linear-gradient(135deg, #a0aec0 0%, #718096 100%);
+    color: white;
+}
+
+.modern-btn-secondary:hover {
+    background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
+}
+
+.modern-btn-success {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    color: white;
+}
+
+.modern-btn-success:hover {
+    background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+}
+
+.btn-icon {
+    font-size: 16px;
+}
+
+/* Animation keyframes */
+@@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+</style>
+
+@functions {
+    string GetStatusDisplayName(GestionTicketClinisys.Models.Enums.TaskStatus status)
+    {
+        return status switch
+        {
+            GestionTicketClinisys.Models.Enums.TaskStatus.NotStarted => "Non commencé",
+            GestionTicketClinisys.Models.Enums.TaskStatus.InProgress => "En cours",
+            GestionTicketClinisys.Models.Enums.TaskStatus.Completed => "Terminé",
+            GestionTicketClinisys.Models.Enums.TaskStatus.Cancelled => "Annulé",
+            _ => status.ToString()
+        };
+    }
+}
+
+<script src="@Url.Content("~/js/DemandeClasses.js")"></script>

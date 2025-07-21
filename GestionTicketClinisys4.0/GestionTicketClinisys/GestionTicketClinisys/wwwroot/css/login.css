@@ -1,0 +1,188 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: #f0f2f5;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Removed padding to avoid scroll bar */
+}
+
+.login-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 450px;
+  padding: 20px 0 20px 0;
+  position: relative;
+}
+
+.login-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 450px;
+  padding: 0;
+  position: relative;
+}
+
+.login-header {
+  padding: 25px 30px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.Clinisys-Title {
+  font-size: 1.8rem;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+.blue-section {
+  color: #2c5aa0;
+  font-weight: 500;
+}
+
+.red-section {
+  color: #dc3545;
+  font-weight: 500;
+}
+
+.login-body {
+  padding: 30px 30px 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 25px;
+}
+
+.Login-logo {
+  width: 100px;
+  height: 100%;
+  object-fit: contain;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.info-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.username-input,
+.password-input {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  background: white;
+  padding: 0 15px;
+  gap: 10px;
+  transition: border-color 0.2s ease;
+}
+
+.username-input:focus-within,
+.password-input:focus-within {
+  border-color: #2c5aa0;
+  box-shadow: 0 0 0 2px rgba(44, 90, 160, 0.1);
+}
+
+.username-input input,
+.password-input input {
+  flex: 1;
+  padding: 12px 0;
+  border: none;
+  font-size: 14px;
+  color: #495057;
+  background: transparent;
+  outline: none;
+  font-family: inherit;
+}
+
+.username-input input::placeholder,
+.password-input input::placeholder {
+  color: #6c757d;
+  font-weight: 400;
+}
+
+.username-input span,
+.password-input span {
+  color: #adb5bd;
+  font-size: 16px;
+  font-weight: 300;
+  pointer-events: none;
+}
+
+.login-footer {
+  padding: 15px 30px 25px;
+  text-align: right;
+}
+
+.login-footer button {
+  background: #2c5aa0;
+  color: white;
+  border: none;
+  padding: 10px 25px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  text-transform: none;
+  letter-spacing: 0;
+  font-family: inherit;
+}
+
+.login-footer button:hover {
+  background: #1e3d6c;
+}
+
+.login-footer button:active {
+  background: #1a365d;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .login-container {
+    margin: 10px;
+    max-width: none;
+  }
+
+  .login-header {
+    padding: 20px 25px 12px;
+  }
+
+  .Clinisys-Title {
+    font-size: 1.6rem;
+  }
+
+  .login-body {
+    padding: 25px 25px 15px;
+    gap: 20px;
+  }
+
+  .Login-logo {
+    width: 60px;
+    height: 45px;
+  }
+
+  .login-footer {
+    padding: 12px 25px 20px;
+  }
+}

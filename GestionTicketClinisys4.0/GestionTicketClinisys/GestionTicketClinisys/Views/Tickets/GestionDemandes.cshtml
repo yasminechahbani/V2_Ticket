@@ -1,0 +1,1733 @@
+@model IEnumerable<GestionTicketClinisys.Models.Ticket>
+@{
+    ViewData["Title"] = "Gestion des Demandes";
+}
+
+<!-- Prevent caching -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<!-- Page version identifier -->
+<meta name="page-version" content="3.0-@DateTime.Now.Ticks">
+<link rel="stylesheet" href="~/css/GestionDemandes.css" />
+<div class="header">
+    <div class="header-left">
+        <a href="@Url.Action("Menu", "Home")" class="btn btn-outline-secondary btn-sm" style="margin-right: 15px; text-decoration: none;">
+            ← Retour au Menu
+        </a>
+        <h1 style="display: inline-block; margin: 0;">GESTION DES DEMANDES</h1>
+    </div>
+    <div class="header-actions">
+        <button class="btn btn-success" onclick="openModal()">+ Demande</button>
+        <button class="btn btn-secondary" id="exportBtn" onclick="exportSelected()" disabled>📤 Export CSV</button>
+        <button class="btn btn-danger" id="deleteBtn" onclick="deleteSelected()" disabled>🗑️ Supprimer</button>
+    </div>
+</div>
+<div class="controls">
+    <div class="search-filters">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Rechercher..." />
+        </div>
+        <div class="filter-group">
+            <label>Statut:</label>
+            <select id="statusFilter">
+                <option value="">Tous</option>
+                <option value="Open">Open</option>
+                <option value="InProgress">InProgress</option>
+                <option value="Resolved">Resolved</option>
+                <option value="Closed">Closed</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Type:</label>
+            <select id="typeFilter">
+                <option value="">Tous</option>
+                <option value="Maintenance">Maintenance</option>
+                <option value="Developpement">Développement</option>
+                <option value="Support">Support</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Priorité:</label>
+            <select id="priorityFilter">
+                <option value="">Tous</option>
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+                <option value="Critical">Critical</option>
+            </select>
+        </div>
+    </div>
+    <div class="date-range">
+        <label>Du:</label>
+        <input type="date" id="dateFrom" />
+        <label>Au:</label>
+        <input type="date" id="dateTo" />
+        <button class="btn btn-secondary" onclick="clearFilters()" style="margin-left: 10px;">🔄 Effacer</button>
+    </div>
+</div>
+<div class="table-container">
+    <table class="data-table" id="dataTable">
+        <thead>
+            <tr>
+                <th><input type="checkbox" /></th>
+                <th>Titre</th>
+                <th>Demandeur</th>
+                <th>Date</th>
+                <th>Statut</th>
+                <th>Priorité</th>
+                <th>Type</th>
+
+                <th>Équipe</th>
+                <th>Module</th>
+                <th>Temps d'attente</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td><input type="checkbox" class="row-checkbox" data-id="@item.Id" /></td>
+                <td>@item.Title</td>
+                <td>@item.Client?.Name</td>
+                <td>@item.CreationDate.ToString("yyyy-MM-dd")</td>
+                <td><span class="status-badge status-@item.Status.ToString().ToLower()">@item.Status</span></td>
+                <td><span class="priority-badge priority-@item.Priority.ToString().ToLower()">@item.Priority</span></td>
+                <td>@(item.Type?.ToString() ?? "-")</td>
+
+                <td>@(item.Team?.Name ?? "-")</td>
+                <td>@(item.Module?.Name ?? "-")</td>
+                <td>
+                    <span class="pending-time @GetPendingTimeClass(item.CreationDate)" data-creation-date="@item.CreationDate.ToString("yyyy-MM-ddTHH:mm:ss")" title="Créé le @item.CreationDate.ToString("dd/MM/yyyy à HH:mm")">
+                        @GetPendingTime(item.CreationDate)
+                    </span>
+                </td>
+                <td>
+                    <button class="btn btn-primary" onclick="openEditModal(@item.Id)" title="Modifier">✏️</button>
+                    <button class="btn btn-danger" onclick="openDeleteModal(@item.Id, '@Html.Raw(Html.Encode(item.Title))')" title="Supprimer">🗑️</button>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+<div class="stats">
+    <span id="recordCount">Total: @Model.Count() enregistrements</span>
+    <span id="selectedCount">Sélectionnés: 0</span>
+</div>
+<div class="pagination" id="pagination">
+</div>
+
+<!-- Modal Dialog for Creating New Ticket -->
+<div id="modalOverlay" class="modern-modal-overlay">
+    <div id="modalContent" class="modern-modal-content">
+        <div class="modern-modal-header">
+            <h3 class="modern-modal-title">
+                <span class="modal-icon">📝</span>
+                NOUVELLE DEMANDE
+            </h3>
+            <button onclick="closeModal()" class="modern-modal-close">&times;</button>
+        </div>
+
+        <div class="modern-modal-body">
+            <form id="requestForm">
+                @Html.AntiForgeryToken()
+                <div class="form-section">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="demandeur">Demandeur *</label>
+                            <select id="demandeur" name="ClientId" required>
+                                <option value="">Sélectionner...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="duree">Durée</label>
+                            <div class="duration-group">
+                                <input type="number" id="dureeJours" name="DurationDays" class="duration-input" placeholder="Jrs">
+                                <input type="number" id="dureeMois" name="DurationMonths" class="duration-input" placeholder="Mois">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="type">Type</label>
+                            <select id="type" name="Type">
+                                <option value="">Sélectionner...</option>
+                                <option value="0">Maintenance</option>
+                                <option value="1">Développement</option>
+                                <option value="2">Support</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="status">Statut</label>
+                            <select id="status" name="Status">
+                                <option value="0">Open</option>
+                                <option value="1">InProgress</option>
+                                <option value="2">Resolved</option>
+                                <option value="3">Closed</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="priority">Priorité</label>
+                            <select id="priority" name="Priority">
+                                <option value="0">Low</option>
+                                <option value="1">Medium</option>
+                                <option value="2">High</option>
+                                <option value="3">Critical</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="designation">Titre *</label>
+                            <input type="text" id="designation" name="Title" placeholder="Entrez le titre" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="description">Description *</label>
+                            <textarea id="description" name="Description" rows="3" placeholder="Description du ticket" required></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="commentaire">Commentaire</label>
+                            <div class="toolbar">
+                                <button type="button" onclick="formatText('bold')" title="Gras"><b>B</b></button>
+                                <button type="button" onclick="formatText('italic')" title="Italique"><i>I</i></button>
+                                <button type="button" onclick="formatText('underline')" title="Souligner"><u>U</u></button>
+                                <button type="button" onclick="formatText('strikethrough')" title="Barré"><s>S</s></button>
+                                <button type="button" onclick="insertList('ul')" title="Liste à puces">•</button>
+                                <button type="button" onclick="insertList('ol')" title="Liste numérotée">1.</button>
+                                <button type="button" onclick="insertLink()" title="Insérer un lien">🔗</button>
+                            </div>
+                            <div class="text-editor" id="textEditor" contenteditable="true">
+                                Tapez votre commentaire ici...
+                            </div>
+                            <input type="hidden" id="richTextComment" name="RichTextComment">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Télécharger Documents</label>
+                            <div class="upload-section">
+                                <input type="file" id="fileInput" class="file-input" multiple>
+                                <button type="button" class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                                    Choisir des fichiers
+                                </button>
+                                <p>ou glissez-déposez vos fichiers ici</p>
+                                <div id="fileList"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="modern-modal-footer">
+            <button type="button" onclick="closeModal()" class="modern-btn modern-btn-secondary">
+                <span class="btn-icon">❌</span>
+                Annuler
+            </button>
+            <button type="button" onclick="submitForm()" class="modern-btn modern-btn-primary">
+                <span class="btn-icon">💾</span>
+                Enregistrer
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal Dialog -->
+<div id="editModalOverlay" class="modern-modal-overlay">
+    <div id="editModalContent" class="modern-modal-content">
+        <div class="modern-modal-header">
+            <h3 class="modern-modal-title">
+                <span class="modal-icon">✏️</span>
+                MODIFIER LA DEMANDE
+            </h3>
+            <button onclick="closeEditModal()" class="modern-modal-close">&times;</button>
+        </div>
+
+        <div class="modern-modal-body">
+            <form id="editRequestForm">
+                <input type="hidden" id="editTicketId" name="Id">
+                <div class="form-section">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editDemandeur">Demandeur *</label>
+                            <select id="editDemandeur" name="ClientId" required>
+                                <option value="">Sélectionner...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editDuree">Durée</label>
+                            <div class="duration-group">
+                                <input type="number" id="editDureeJours" name="DurationDays" class="duration-input" placeholder="Jrs">
+                                <input type="number" id="editDureeMois" name="DurationMonths" class="duration-input" placeholder="Mois">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="editType">Type</label>
+                            <select id="editType" name="Type">
+                                <option value="">Sélectionner...</option>
+                                <option value="0">Maintenance</option>
+                                <option value="1">Développement</option>
+                                <option value="2">Support</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editStatus">Statut</label>
+                            <select id="editStatus" name="Status">
+                                <option value="0">Open</option>
+                                <option value="1">InProgress</option>
+                                <option value="2">Resolved</option>
+                                <option value="3">Closed</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editPriority">Priorité</label>
+                            <select id="editPriority" name="Priority">
+                                <option value="0">Low</option>
+                                <option value="1">Medium</option>
+                                <option value="2">High</option>
+                                <option value="3">Critical</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editDesignation">Titre *</label>
+                            <input type="text" id="editDesignation" name="Title" placeholder="Entrez le titre" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editDescription">Description *</label>
+                            <textarea id="editDescription" name="Description" rows="3" placeholder="Description du ticket" required></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+                            <label for="editAssignedTeam">Équipe assignée</label>
+                            <select id="editAssignedTeam" name="TeamId">
+                                <option value="">Sélectionner...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editModule">Module</label>
+                            <select id="editModule" name="ModuleId">
+                                <option value="">Sélectionner...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editCommentaire">Commentaire</label>
+                            <div class="toolbar">
+                                <button type="button" onclick="formatEditText('bold')" title="Gras"><b>B</b></button>
+                                <button type="button" onclick="formatEditText('italic')" title="Italique"><i>I</i></button>
+                                <button type="button" onclick="formatEditText('underline')" title="Souligner"><u>U</u></button>
+                                <button type="button" onclick="formatEditText('strikethrough')" title="Barré"><s>S</s></button>
+                                <button type="button" onclick="insertEditList('ul')" title="Liste à puces">•</button>
+                                <button type="button" onclick="insertEditList('ol')" title="Liste numérotée">1.</button>
+                                <button type="button" onclick="insertEditLink()" title="Insérer un lien">🔗</button>
+                            </div>
+                            <div class="text-editor" id="editTextEditor" contenteditable="true">
+                                Tapez votre commentaire ici...
+                            </div>
+                            <input type="hidden" id="editRichTextComment" name="RichTextComment">
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="modern-modal-footer">
+            <button type="button" onclick="closeEditModal()" class="modern-btn modern-btn-secondary">
+                <span class="btn-icon">❌</span>
+                Annuler
+            </button>
+            <button type="button" onclick="submitEditForm()" class="modern-btn modern-btn-primary">
+                <span class="btn-icon">💾</span>
+                Mettre à jour
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModalOverlay" class="modern-modal-overlay">
+    <div class="modern-modal-content modern-modal-danger">
+        <div class="modern-modal-header modern-modal-header-danger">
+            <h3 class="modern-modal-title">
+                <span class="modal-icon">⚠️</span>
+                CONFIRMER LA SUPPRESSION
+            </h3>
+            <button onclick="closeDeleteModal()" class="modern-modal-close">&times;</button>
+        </div>
+
+        <div class="modern-modal-body">
+            <div class="warning-message">
+                <p class="warning-text">
+                    Êtes-vous sûr de vouloir supprimer ce ticket ?
+                </p>
+                <p class="warning-details">
+                    <strong>Titre:</strong> <span id="deleteTicketTitle"></span>
+                </p>
+                <p class="warning-note">
+                    Cette action est irréversible.
+                </p>
+            </div>
+            <input type="hidden" id="deleteTicketId">
+        </div>
+
+        <div class="modern-modal-footer">
+            <button type="button" onclick="closeDeleteModal()" class="modern-btn modern-btn-secondary">
+                <span class="btn-icon">❌</span>
+                Annuler
+            </button>
+            <button type="button" onclick="confirmDelete()" class="modern-btn modern-btn-danger">
+                <span class="btn-icon">🗑️</span>
+                Supprimer
+            </button>
+        </div>
+    </div>
+</div>
+
+
+
+<style>
+    .overlay {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        background-color: rgba(0, 0, 0, 0.5) !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        z-index: 9999 !important;
+    }
+
+    .modal {
+        background: white !important;
+        border-radius: 8px !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+        width: 90% !important;
+        max-width: 800px !important;
+        max-height: 90vh !important;
+        overflow-y: auto !important;
+        position: relative !important;
+        z-index: 10000 !important;
+    }
+
+    .modal-header {
+        background-color: #2c5282;
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px 8px 0 0;
+        font-size: 16px;
+        font-weight: bold;
+        position: relative;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .form-section {
+        margin-bottom: 20px;
+    }
+
+    .form-row {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 15px;
+        align-items: center;
+    }
+
+    .form-group {
+        flex: 1;
+    }
+
+    .modal label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .modal input, .modal select, .modal textarea {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .modal input:focus, .modal select:focus, .modal textarea:focus {
+        outline: none;
+        border-color: #4299e1;
+        box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.2);
+    }
+
+    .duration-group {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .duration-input {
+        width: 60px;
+    }
+
+    .toolbar {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 8px;
+        margin-bottom: 10px;
+        background-color: #f8f9fa;
+    }
+
+    .toolbar button {
+        background: none;
+        border: 1px solid #ddd;
+        padding: 4px 8px;
+        margin-right: 5px;
+        cursor: pointer;
+        border-radius: 3px;
+        font-size: 12px;
+    }
+
+    .toolbar button:hover {
+        background-color: #e9ecef;
+    }
+
+    .toolbar button.active {
+        background-color: #007bff;
+        color: white;
+        border-color: #007bff;
+    }
+
+    .text-editor {
+        min-height: 200px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 10px;
+        resize: vertical;
+    }
+
+    .modal-footer {
+        padding: 15px 20px;
+        border-top: 1px solid #eee;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        background: none;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
+    .upload-section {
+        border: 2px dashed #ddd;
+        border-radius: 4px;
+        padding: 20px;
+        text-align: center;
+        margin-top: 10px;
+    }
+
+    .upload-section:hover {
+        border-color: #007bff;
+    }
+
+    .file-input {
+        display: none;
+    }
+
+    .upload-btn {
+        background-color: #28a745;
+        color: white;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .upload-btn:hover {
+        background-color: #218838;
+    }
+
+    .priority-badge {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    .priority-low {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .priority-medium {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
+    .priority-high {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .priority-critical {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background-color: #6c757d !important;
+    }
+
+    .btn:disabled:hover {
+        background-color: #6c757d !important;
+    }
+
+    .selection-info {
+        margin: 10px 0;
+        font-weight: bold;
+        color: #007bff;
+    }
+</style>
+
+<script>
+    let dropdownData = {};
+
+    // Load dropdown data when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Page loaded - Version 3.0 - ' + new Date().toISOString());
+
+        // Remove any cached test elements
+        const testElements = document.querySelectorAll('[style*="TEST"], [style*="test"], [style*="Modal is working"]');
+        testElements.forEach(el => {
+            console.log('Removing cached test element:', el);
+            el.remove();
+        });
+
+        // Also check for any elements with red background that might be test elements
+        const redElements = document.querySelectorAll('[style*="background: red"], [style*="background-color: red"]');
+        redElements.forEach(el => {
+            if (el.textContent && el.textContent.includes('TEST')) {
+                console.log('Removing red test element:', el);
+                el.remove();
+            }
+        });
+
+        loadDropdownData();
+    });
+
+    async function loadDropdownData() {
+        try {
+            const response = await fetch('/Tickets/GetDropdownData');
+            dropdownData = await response.json();
+            populateDropdowns();
+        } catch (error) {
+            console.error('Error loading dropdown data:', error);
+        }
+    }
+
+    function populateDropdowns() {
+        // Populate clients dropdown
+        const clientSelect = document.getElementById('demandeur');
+        clientSelect.innerHTML = '<option value="">Sélectionner...</option>';
+        dropdownData.clients.forEach(client => {
+            const option = document.createElement('option');
+            option.value = client.id;
+            option.textContent = client.name;
+            clientSelect.appendChild(option);
+        });
+    }
+
+    function openModal() {
+        console.log('Opening modal - Version 4.0 - ' + new Date().toISOString());
+
+        // Ensure dropdown data is loaded first
+        if (!dropdownData.clients || dropdownData.clients.length === 0) {
+            console.log('Loading dropdown data first...');
+            loadDropdownData().then(() => {
+                openModalAfterDataLoad();
+            });
+        } else {
+            openModalAfterDataLoad();
+        }
+    }
+
+    function openModalAfterDataLoad() {
+        const modal = document.getElementById('modalOverlay');
+        const modalContent = document.getElementById('modalContent');
+
+        if (!modal || !modalContent) {
+            console.error('Modal elements not found!');
+            return;
+        }
+
+        console.log('Modal found, making visible...');
+
+        // Reset any previous styles that might interfere
+        modal.style.cssText = '';
+        modalContent.style.cssText = '';
+
+        // Force display with explicit styles
+        modal.style.display = 'flex';
+        modal.style.position = 'fixed';
+        modal.style.top = '0';
+        modal.style.left = '0';
+        modal.style.width = '100%';
+        modal.style.height = '100%';
+        modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+        modal.style.justifyContent = 'center';
+        modal.style.alignItems = 'center';
+        modal.style.zIndex = '99999';
+
+        // Ensure modal content is visible with very explicit styles
+        modalContent.style.display = 'block';
+        modalContent.style.visibility = 'visible';
+        modalContent.style.opacity = '1';
+        modalContent.style.position = 'relative';
+        modalContent.style.zIndex = '100000';
+        modalContent.style.background = 'white';
+        modalContent.style.borderRadius = '8px';
+        modalContent.style.width = '90%';
+        modalContent.style.maxWidth = '800px';
+        modalContent.style.maxHeight = '90vh';
+        modalContent.style.overflow = 'auto';
+
+        console.log('Modal styles applied, should be visible now');
+
+        // Clear and reset form
+        const form = document.getElementById('requestForm');
+        if (form) {
+            form.reset();
+        }
+
+        const textEditor = document.getElementById('textEditor');
+        if (textEditor) {
+            textEditor.innerHTML = 'Tapez votre commentaire ici...';
+        }
+
+        const fileList = document.getElementById('fileList');
+        if (fileList) {
+            fileList.innerHTML = '';
+        }
+
+        // Populate dropdowns
+        populateDropdowns();
+
+        console.log('Modal setup complete and visible');
+    }
+
+    function closeModal() {
+        console.log('Closing modal...');
+        const modal = document.getElementById('modalOverlay');
+        if (modal) {
+            modal.style.display = 'none';
+            console.log('Modal closed');
+        }
+    }
+
+    function formatText(command) {
+        document.execCommand(command, false, null);
+    }
+
+    function insertList(type) {
+        document.execCommand('insertHTML', false, type === 'ul' ? '<ul><li></li></ul>' : '<ol><li></li></ol>');
+    }
+
+    function insertLink() {
+        const url = prompt('Entrez l\'URL:');
+        if (url) {
+            document.execCommand('createLink', false, url);
+        }
+    }
+
+    async function submitForm() {
+        console.log('Submitting form...');
+
+        // Validate required fields
+        const title = document.getElementById('designation').value.trim();
+        const description = document.getElementById('description').value.trim();
+        const clientId = document.getElementById('demandeur').value;
+
+        console.log('Validating fields:', { title, description, clientId });
+
+        if (!title || !description || !clientId || clientId === '') {
+            alert('Veuillez remplir tous les champs obligatoires:\n- Demandeur\n- Titre\n- Description');
+            return;
+        }
+
+        if (clientId === '0' || isNaN(parseInt(clientId))) {
+            alert('Veuillez sélectionner un demandeur valide');
+            return;
+        }
+
+        const form = document.getElementById('requestForm');
+        const formData = new FormData(form);
+
+        // Get rich text content
+        const textEditor = document.getElementById('textEditor');
+        formData.append('RichTextComment', textEditor.innerHTML);
+
+        // Get anti-forgery token (temporarily disabled for debugging)
+        // const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+        // formData.append('__RequestVerificationToken', token);
+
+        // Debug: Log form data
+        console.log('Form data being sent:');
+        for (let [key, value] of formData.entries()) {
+            console.log(key, value);
+        }
+
+        try {
+            const response = await fetch('/Tickets/CreateModal', {
+                method: 'POST',
+                body: formData
+            });
+
+            console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers);
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.log('Error response text:', errorText);
+                throw new Error(`HTTP error! status: ${response.status}, response: ${errorText}`);
+            }
+
+            const result = await response.json();
+            console.log('Response result:', result);
+
+            if (result.success) {
+                alert('Demande créée avec succès!');
+                closeModal();
+                // Reload the page to show the new ticket
+                window.location.reload();
+            } else {
+                console.log('Validation errors:', result.errors);
+                alert('Erreur de validation: ' + (result.errors ? result.errors.join('\n') : 'Une erreur est survenue'));
+            }
+        } catch (error) {
+            console.error('Error submitting form:', error);
+            alert('Erreur lors de la soumission du formulaire: ' + error.message);
+        }
+    }
+
+    // File upload handling
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+        const fileList = document.getElementById('fileList');
+        fileList.innerHTML = '';
+
+        Array.from(e.target.files).forEach(file => {
+            const fileItem = document.createElement('div');
+            fileItem.textContent = file.name;
+            fileItem.style.padding = '5px';
+            fileItem.style.background = '#f0f0f0';
+            fileItem.style.margin = '5px 0';
+            fileItem.style.borderRadius = '3px';
+            fileList.appendChild(fileItem);
+        });
+    });
+
+    // Prevent modal from closing when clicking outside (removed functionality)
+    // ESC key still works for accessibility
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeModal();
+            closeEditModal();
+            closeDeleteModal();
+        }
+    });
+
+    // Edit Modal Functions
+    async function openEditModal(ticketId) {
+        console.log('Opening edit modal for ticket:', ticketId);
+
+        try {
+            // First, ensure dropdown data is loaded
+            if (!dropdownData.clients || dropdownData.clients.length === 0) {
+                console.log('Loading dropdown data first...');
+                await loadDropdownData();
+            }
+
+            // Get ticket data
+            const response = await fetch(`/Tickets/GetTicketData/${ticketId}`);
+            const result = await response.json();
+
+            if (!result.success) {
+                alert('Erreur: ' + result.message);
+                return;
+            }
+
+            const ticket = result.ticket;
+            console.log('Ticket data loaded:', ticket);
+
+            // Populate dropdowns FIRST
+            populateEditDropdowns();
+
+            // Then populate form fields (including select values)
+            document.getElementById('editTicketId').value = ticket.id;
+            document.getElementById('editDesignation').value = ticket.title || '';
+            document.getElementById('editDescription').value = ticket.description || '';
+
+            // Set select values after dropdowns are populated
+            setTimeout(() => {
+                document.getElementById('editDemandeur').value = ticket.clientId || '';
+                document.getElementById('editType').value = ticket.type !== null ? ticket.type : '';
+                document.getElementById('editStatus').value = ticket.status !== null ? ticket.status : '';
+                document.getElementById('editPriority').value = ticket.priority !== null ? ticket.priority : '';
+
+                document.getElementById('editAssignedTeam').value = ticket.teamId || '';
+                document.getElementById('editModule').value = ticket.moduleId || '';
+
+                console.log('Set editDemandeur to:', ticket.clientId);
+                console.log('editDemandeur current value:', document.getElementById('editDemandeur').value);
+                console.log('Set editStatus to:', ticket.status);
+                console.log('Set editPriority to:', ticket.priority);
+
+                console.log('Set editAssignedTeam to:', ticket.teamId);
+                console.log('Set editModule to:', ticket.moduleId);
+            }, 100);
+
+            document.getElementById('editDureeJours').value = ticket.durationDays || '';
+            document.getElementById('editDureeMois').value = ticket.durationMonths || '';
+            document.getElementById('editTextEditor').innerHTML = ticket.richTextComment || 'Tapez votre commentaire ici...';
+
+            // Show modal
+            const modal = document.getElementById('editModalOverlay');
+            const modalContent = document.getElementById('editModalContent');
+
+            modal.style.display = 'flex';
+            modalContent.style.display = 'block';
+            modalContent.style.visibility = 'visible';
+            modalContent.style.opacity = '1';
+
+            console.log('Edit modal opened successfully');
+        } catch (error) {
+            console.error('Error opening edit modal:', error);
+            alert('Erreur lors du chargement des données du ticket');
+        }
+    }
+
+    function populateEditDropdowns() {
+        console.log('Populating edit dropdowns with data:', dropdownData);
+
+        // Populate clients dropdown for edit modal
+        const editClientSelect = document.getElementById('editDemandeur');
+        editClientSelect.innerHTML = '<option value="">Sélectionner...</option>';
+        if (dropdownData.clients) {
+            dropdownData.clients.forEach(client => {
+                const option = document.createElement('option');
+                option.value = client.id;
+                option.textContent = client.name;
+                editClientSelect.appendChild(option);
+            });
+            console.log('Populated clients dropdown with', dropdownData.clients.length, 'clients');
+        }
+
+
+
+        // Populate teams dropdown
+        const editTeamSelect = document.getElementById('editAssignedTeam');
+        editTeamSelect.innerHTML = '<option value="">Sélectionner...</option>';
+        if (dropdownData.teams) {
+            dropdownData.teams.forEach(team => {
+                const option = document.createElement('option');
+                option.value = team.id;
+                option.textContent = team.name;
+                editTeamSelect.appendChild(option);
+            });
+            console.log('Populated teams dropdown with', dropdownData.teams.length, 'teams');
+        }
+
+        // Populate modules dropdown
+        const editModuleSelect = document.getElementById('editModule');
+        editModuleSelect.innerHTML = '<option value="">Sélectionner...</option>';
+        if (dropdownData.modules) {
+            dropdownData.modules.forEach(module => {
+                const option = document.createElement('option');
+                option.value = module.id;
+                option.textContent = module.name;
+                editModuleSelect.appendChild(option);
+            });
+            console.log('Populated modules dropdown with', dropdownData.modules.length, 'modules');
+        }
+
+        console.log('Edit dropdowns populated successfully');
+    }
+
+    function closeEditModal() {
+        const modal = document.getElementById('editModalOverlay');
+        modal.style.display = 'none';
+    }
+
+    function formatEditText(command) {
+        document.execCommand(command, false, null);
+    }
+
+    function insertEditList(type) {
+        document.execCommand('insertHTML', false, type === 'ul' ? '<ul><li></li></ul>' : '<ol><li></li></ol>');
+    }
+
+    function insertEditLink() {
+        const url = prompt('Entrez l\'URL:');
+        if (url) {
+            document.execCommand('createLink', false, url);
+        }
+    }
+
+    async function submitEditForm() {
+        console.log('Submitting edit form...');
+
+        // Validate required fields
+        const title = document.getElementById('editDesignation').value.trim();
+        const description = document.getElementById('editDescription').value.trim();
+        const clientId = document.getElementById('editDemandeur').value;
+
+        console.log('Validating edit fields:', { title, description, clientId });
+
+        if (!title || !description || !clientId || clientId === '') {
+            alert('Veuillez remplir tous les champs obligatoires:\n- Demandeur\n- Titre\n- Description');
+            return;
+        }
+
+        if (clientId === '0' || isNaN(parseInt(clientId))) {
+            alert('Veuillez sélectionner un demandeur valide');
+            return;
+        }
+
+        const form = document.getElementById('editRequestForm');
+        const formData = new FormData(form);
+
+        // Get rich text content
+        const textEditor = document.getElementById('editTextEditor');
+        formData.append('RichTextComment', textEditor.innerHTML);
+
+        // Debug: Log form data
+        console.log('Edit form data being sent:');
+        for (let [key, value] of formData.entries()) {
+            console.log(key, value);
+        }
+
+        try {
+            const response = await fetch('/Tickets/EditModal', {
+                method: 'POST',
+                body: formData
+            });
+
+            console.log('Edit response status:', response.status);
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.log('Edit error response text:', errorText);
+                throw new Error(`HTTP error! status: ${response.status}, response: ${errorText}`);
+            }
+
+            const result = await response.json();
+            console.log('Edit response result:', result);
+
+            if (result.success) {
+                alert('Ticket mis à jour avec succès!');
+                closeEditModal();
+                // Reload the page to show the updated ticket
+                window.location.reload();
+            } else {
+                console.log('Edit validation errors:', result.errors);
+                alert('Erreur de validation: ' + (result.errors ? result.errors.join('\n') : 'Une erreur est survenue'));
+            }
+        } catch (error) {
+            console.error('Error submitting edit form:', error);
+            alert('Erreur lors de la mise à jour du ticket: ' + error.message);
+        }
+    }
+
+    // Delete Modal Functions
+    function openDeleteModal(ticketId, ticketTitle) {
+        console.log('Opening delete modal for ticket:', ticketId, ticketTitle);
+
+        document.getElementById('deleteTicketId').value = ticketId;
+        document.getElementById('deleteTicketTitle').textContent = ticketTitle;
+
+        const modal = document.getElementById('deleteModalOverlay');
+        modal.style.display = 'flex';
+
+        console.log('Delete modal opened');
+    }
+
+    function closeDeleteModal() {
+        const modal = document.getElementById('deleteModalOverlay');
+        modal.style.display = 'none';
+    }
+
+    async function confirmDelete() {
+        const ticketId = document.getElementById('deleteTicketId').value;
+        console.log('Confirming delete for ticket:', ticketId);
+
+        try {
+            const response = await fetch('/Tickets/DeleteModal', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ id: parseInt(ticketId) })
+            });
+
+            console.log('Delete response status:', response.status);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log('Delete response result:', result);
+
+            if (result.success) {
+                alert('Ticket supprimé avec succès!');
+                closeDeleteModal();
+                // Reload the page to show the updated list
+                window.location.reload();
+            } else {
+                alert('Erreur: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Error deleting ticket:', error);
+            alert('Erreur lors de la suppression du ticket: ' + error.message);
+        }
+    }
+
+    // Modals no longer close when clicking outside (improved UX)
+
+    // Checkbox selection handling
+    let selectedTickets = [];
+
+    function updateSelectionCount() {
+        // Only count visible checked checkboxes
+        const checkboxes = document.querySelectorAll('.row-checkbox:checked:not([style*="display: none"])');
+        const count = checkboxes.length;
+
+        selectedTickets = Array.from(checkboxes).map(cb => parseInt(cb.dataset.id));
+
+        document.getElementById('selectedCount').textContent = `Sélectionnés: ${count}`;
+
+        // Enable/disable buttons based on selection
+        const exportBtn = document.getElementById('exportBtn');
+        const deleteBtn = document.getElementById('deleteBtn');
+
+        if (count > 0) {
+            exportBtn.disabled = false;
+            deleteBtn.disabled = false;
+            exportBtn.textContent = `📤 Export CSV (${count})`;
+            deleteBtn.textContent = `🗑️ Supprimer (${count})`;
+        } else {
+            exportBtn.disabled = true;
+            deleteBtn.disabled = true;
+            exportBtn.textContent = '📤 Export CSV';
+            deleteBtn.textContent = '🗑️ Supprimer';
+        }
+    }
+
+    // Add event listeners to all checkboxes and filters
+    document.addEventListener('DOMContentLoaded', function() {
+        // Header checkbox (select all)
+        const headerCheckbox = document.querySelector('thead input[type="checkbox"]');
+        if (headerCheckbox) {
+            headerCheckbox.addEventListener('change', function() {
+                const rowCheckboxes = document.querySelectorAll('.row-checkbox:not([style*="display: none"])');
+                rowCheckboxes.forEach(cb => {
+                    cb.checked = this.checked;
+                });
+                updateSelectionCount();
+            });
+        }
+
+        // Row checkboxes
+        const rowCheckboxes = document.querySelectorAll('.row-checkbox');
+        rowCheckboxes.forEach(cb => {
+            cb.addEventListener('change', updateSelectionCount);
+        });
+
+        // Search and filter event listeners
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
+        document.getElementById('statusFilter').addEventListener('change', applyFilters);
+        document.getElementById('typeFilter').addEventListener('change', applyFilters);
+        document.getElementById('priorityFilter').addEventListener('change', applyFilters);
+        document.getElementById('dateFrom').addEventListener('change', applyFilters);
+        document.getElementById('dateTo').addEventListener('change', applyFilters);
+
+        // Initial count
+        updateSelectionCount();
+    });
+
+    // CSV Export functionality
+    function exportSelected() {
+        if (selectedTickets.length === 0) {
+            alert('Veuillez sélectionner au moins un ticket à exporter.');
+            return;
+        }
+
+        console.log('Exporting tickets:', selectedTickets);
+
+        // Create CSV content
+        const headers = ['ID', 'Titre', 'Demandeur', 'Date', 'Statut', 'Priorité', 'Type', 'Utilisateur', 'Équipe', 'Module', 'Description'];
+        let csvContent = headers.join(',') + '\n';
+
+        // Get data from selected rows
+        selectedTickets.forEach(ticketId => {
+            const row = document.querySelector(`input[data-id="${ticketId}"]`).closest('tr');
+            const cells = row.querySelectorAll('td');
+
+            const rowData = [
+                ticketId,
+                `"${cells[1].textContent.trim()}"`, // Titre
+                `"${cells[2].textContent.trim()}"`, // Demandeur
+                `"${cells[3].textContent.trim()}"`, // Date
+                `"${cells[4].textContent.trim()}"`, // Statut
+                `"${cells[5].textContent.trim()}"`, // Priorité
+                `"${cells[6].textContent.trim()}"`, // Type
+                `"${cells[7].textContent.trim()}"`, // Utilisateur
+                `"${cells[8].textContent.trim()}"`, // Équipe
+                `"${cells[9].textContent.trim()}"`, // Module
+                `"${cells[10] ? cells[10].textContent.trim() : ''}"` // Description (if exists)
+            ];
+
+            csvContent += rowData.join(',') + '\n';
+        });
+
+        // Download CSV file
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `tickets_export_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        console.log('CSV export completed');
+        alert(`${selectedTickets.length} tickets exportés avec succès!`);
+    }
+
+    // Bulk delete functionality
+    function deleteSelected() {
+        if (selectedTickets.length === 0) {
+            alert('Veuillez sélectionner au moins un ticket à supprimer.');
+            return;
+        }
+
+        // Show confirmation dialog
+        const ticketTitles = selectedTickets.map(ticketId => {
+            const row = document.querySelector(`input[data-id="${ticketId}"]`).closest('tr');
+            return row.querySelector('td:nth-child(2)').textContent.trim();
+        });
+
+        const confirmMessage = `Êtes-vous sûr de vouloir supprimer ${selectedTickets.length} ticket(s) ?\n\nTickets à supprimer:\n${ticketTitles.map(title => `- ${title}`).join('\n')}`;
+
+        if (confirm(confirmMessage)) {
+            bulkDeleteTickets();
+        }
+    }
+
+    async function bulkDeleteTickets() {
+        console.log('Bulk deleting tickets:', selectedTickets);
+
+        try {
+            const response = await fetch('/Tickets/BulkDelete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ ticketIds: selectedTickets })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log('Bulk delete response:', result);
+
+            if (result.success) {
+                alert(`${result.deletedCount} ticket(s) supprimé(s) avec succès!`);
+                // Reload the page to show updated list
+                window.location.reload();
+            } else {
+                alert('Erreur: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Error bulk deleting tickets:', error);
+            alert('Erreur lors de la suppression des tickets: ' + error.message);
+        }
+    }
+
+    // Search and Filter functionality
+    function applyFilters() {
+        console.log('Applying filters...');
+
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+        const statusFilter = document.getElementById('statusFilter').value;
+        const typeFilter = document.getElementById('typeFilter').value;
+        const priorityFilter = document.getElementById('priorityFilter').value;
+        const dateFrom = document.getElementById('dateFrom').value;
+        const dateTo = document.getElementById('dateTo').value;
+
+        const rows = document.querySelectorAll('#dataTable tbody tr');
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            let showRow = true;
+
+            // Get row data
+            const cells = row.querySelectorAll('td');
+            if (cells.length < 10) return; // Skip if not enough cells
+
+            const titre = cells[1].textContent.toLowerCase().trim();
+            const demandeur = cells[2].textContent.toLowerCase().trim();
+            const date = cells[3].textContent.trim();
+            const status = cells[4].textContent.trim();
+            const priority = cells[5].textContent.trim();
+            const type = cells[6].textContent.trim();
+            const utilisateur = cells[7].textContent.toLowerCase().trim();
+            const equipe = cells[8].textContent.toLowerCase().trim();
+            const module = cells[9].textContent.toLowerCase().trim();
+
+            // Apply search filter (search in multiple fields)
+            if (searchTerm) {
+                const searchableText = `${titre} ${demandeur} ${utilisateur} ${equipe} ${module}`;
+                if (!searchableText.includes(searchTerm)) {
+                    showRow = false;
+                }
+            }
+
+            // Apply status filter
+            if (statusFilter && status !== statusFilter) {
+                showRow = false;
+            }
+
+            // Apply type filter
+            if (typeFilter && type !== typeFilter) {
+                showRow = false;
+            }
+
+            // Apply priority filter
+            if (priorityFilter && priority !== priorityFilter) {
+                showRow = false;
+            }
+
+            // Apply date range filter
+            if (dateFrom || dateTo) {
+                const rowDate = new Date(date);
+                if (dateFrom && rowDate < new Date(dateFrom)) {
+                    showRow = false;
+                }
+                if (dateTo && rowDate > new Date(dateTo)) {
+                    showRow = false;
+                }
+            }
+
+            // Show/hide row
+            if (showRow) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+                // Uncheck hidden rows
+                const checkbox = row.querySelector('.row-checkbox');
+                if (checkbox) {
+                    checkbox.checked = false;
+                }
+            }
+        });
+
+        // Update record count
+        const totalCount = rows.length;
+        document.getElementById('recordCount').textContent = `Total: ${totalCount} enregistrements (${visibleCount} affichés)`;
+
+        // Update selection count
+        updateSelectionCount();
+
+        // Update header checkbox state
+        updateHeaderCheckbox();
+
+        console.log(`Filtered: ${visibleCount}/${totalCount} rows visible`);
+    }
+
+    function updateHeaderCheckbox() {
+        const headerCheckbox = document.querySelector('thead input[type="checkbox"]');
+        const visibleCheckboxes = document.querySelectorAll('.row-checkbox:not([style*="display: none"])');
+        const checkedVisibleCheckboxes = document.querySelectorAll('.row-checkbox:not([style*="display: none"]):checked');
+
+        if (visibleCheckboxes.length === 0) {
+            headerCheckbox.indeterminate = false;
+            headerCheckbox.checked = false;
+        } else if (checkedVisibleCheckboxes.length === visibleCheckboxes.length) {
+            headerCheckbox.indeterminate = false;
+            headerCheckbox.checked = true;
+        } else if (checkedVisibleCheckboxes.length > 0) {
+            headerCheckbox.indeterminate = true;
+            headerCheckbox.checked = false;
+        } else {
+            headerCheckbox.indeterminate = false;
+            headerCheckbox.checked = false;
+        }
+    }
+
+    function clearFilters() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('statusFilter').value = '';
+        document.getElementById('typeFilter').value = '';
+        document.getElementById('priorityFilter').value = '';
+        document.getElementById('dateFrom').value = '';
+        document.getElementById('dateTo').value = '';
+        applyFilters();
+    }
+
+    // Update pending times every minute
+    function updatePendingTimes() {
+        const pendingTimeElements = document.querySelectorAll('.pending-time');
+
+        pendingTimeElements.forEach(element => {
+            const creationDateStr = element.getAttribute('data-creation-date');
+            if (creationDateStr) {
+                const creationDate = new Date(creationDateStr);
+                const now = new Date();
+                const timeDiff = now - creationDate;
+
+                // Update text
+                element.textContent = formatPendingTime(timeDiff);
+
+                // Update class
+                element.className = 'pending-time ' + getPendingTimeClass(timeDiff);
+            }
+        });
+    }
+
+    function formatPendingTime(timeDiffMs) {
+        const days = Math.floor(timeDiffMs / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeDiffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((timeDiffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+        if (days >= 1) {
+            return days === 1 ? '1 jour' : `${days} jours`;
+        } else if (hours >= 1) {
+            return hours === 1 ? '1 heure' : `${hours} heures`;
+        } else if (minutes >= 1) {
+            return minutes === 1 ? '1 minute' : `${minutes} minutes`;
+        } else {
+            return '< 1 minute';
+        }
+    }
+
+    function getPendingTimeClass(timeDiffMs) {
+        const days = timeDiffMs / (1000 * 60 * 60 * 24);
+
+        if (days >= 7) return 'pending-critical';
+        else if (days >= 3) return 'pending-warning';
+        else if (days >= 1) return 'pending-moderate';
+        else return 'pending-recent';
+    }
+
+    // Update pending times every minute
+    setInterval(updatePendingTimes, 60000);
+
+    // Initial update after page load
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(updatePendingTimes, 1000);
+    });
+
+
+</script>
+
+<style>
+/* Modern Modal Styles */
+.modern-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6));
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modern-modal-content {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 8px 32px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow: hidden;
+    position: relative;
+    z-index: 100000;
+    margin: 20px;
+    animation: slideIn 0.3s ease-out;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.modern-modal-content.modern-modal-danger {
+    max-width: 500px;
+}
+
+.modern-modal-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px 25px;
+    position: relative;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modern-modal-header-danger {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+}
+
+.modern-modal-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.modal-icon {
+    font-size: 20px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.modern-modal-close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.modern-modal-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+.modern-modal-body {
+    padding: 25px;
+    max-height: calc(90vh - 140px);
+    overflow-y: auto;
+}
+
+.modern-modal-footer {
+    padding: 20px 25px;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.modern-btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    min-width: 120px;
+    justify-content: center;
+}
+
+.modern-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.modern-btn-primary {
+    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+    color: white;
+}
+
+.modern-btn-primary:hover {
+    background: linear-gradient(135deg, #3182ce 0%, #2c5282 100%);
+}
+
+.modern-btn-secondary {
+    background: linear-gradient(135deg, #a0aec0 0%, #718096 100%);
+    color: white;
+}
+
+.modern-btn-secondary:hover {
+    background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
+}
+
+.modern-btn-danger {
+    background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+    color: white;
+}
+
+.modern-btn-danger:hover {
+    background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+}
+
+.btn-icon {
+    font-size: 16px;
+}
+
+/* Warning message styles */
+.warning-message {
+    text-align: center;
+    padding: 20px;
+}
+
+.warning-text {
+    font-size: 18px;
+    color: #2d3748;
+    margin: 0 0 15px 0;
+    font-weight: 500;
+}
+
+.warning-details {
+    font-size: 16px;
+    color: #4a5568;
+    margin: 10px 0;
+    padding: 12px;
+    background: #f7fafc;
+    border-radius: 8px;
+    border-left: 4px solid #e53e3e;
+}
+
+.warning-note {
+    font-size: 14px;
+    color: #718096;
+    margin: 15px 0 0 0;
+    font-style: italic;
+}
+
+/* Animation keyframes */
+@@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+</style>
+
+@functions {
+    string GetPendingTime(DateTime creationDate)
+    {
+        var timeSpan = DateTime.Now - creationDate;
+
+        if (timeSpan.TotalDays >= 1)
+        {
+            int days = (int)timeSpan.TotalDays;
+            if (days == 1)
+                return "1 jour";
+            else
+                return $"{days} jours";
+        }
+        else if (timeSpan.TotalHours >= 1)
+        {
+            int hours = (int)timeSpan.TotalHours;
+            if (hours == 1)
+                return "1 heure";
+            else
+                return $"{hours} heures";
+        }
+        else if (timeSpan.TotalMinutes >= 1)
+        {
+            int minutes = (int)timeSpan.TotalMinutes;
+            if (minutes == 1)
+                return "1 minute";
+            else
+                return $"{minutes} minutes";
+        }
+        else
+        {
+            return "< 1 minute";
+        }
+    }
+
+    string GetPendingTimeClass(DateTime creationDate)
+    {
+        var timeSpan = DateTime.Now - creationDate;
+
+        if (timeSpan.TotalDays >= 7)
+            return "pending-critical"; // 7+ days - red
+        else if (timeSpan.TotalDays >= 3)
+            return "pending-warning"; // 3-6 days - orange
+        else if (timeSpan.TotalDays >= 1)
+            return "pending-moderate"; // 1-2 days - yellow
+        else
+            return "pending-recent"; // < 1 day - green
+    }
+}

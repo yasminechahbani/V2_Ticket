@@ -1,0 +1,1735 @@
+@model IEnumerable<GestionTicketClinisys.Models.TaskItem>
+
+@{
+    ViewData["Title"] = "Mes Tâches";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Ensure FontAwesome is loaded -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Enhanced Header -->
+            <div class="page-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 15px; margin-bottom: 30px; box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="mb-2" style="font-weight: bold; font-size: 2.5rem;">
+                            <i class="fas fa-tasks me-3"></i>Task Management Dashboard
+                        </h1>
+                        <p class="mb-0" style="font-size: 1.1rem; opacity: 0.9;">
+                            Organize, track, and manage your tasks efficiently
+                        </p>
+                    </div>
+                    <div class="header-stats" style="text-align: right;">
+                        <div style="font-size: 2rem; font-weight: bold;" id="totalTasksCount">0</div>
+                        <div style="font-size: 0.9rem; opacity: 0.8;">Total Tasks</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-panel" style="margin: 20px 0; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <!-- Left side: Search Bar -->
+                    <div class="search-container" style="flex: 1; max-width: 450px;">
+                        <div class="input-group">
+                            <span class="input-group-text" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-color: #dee2e6; color: #667eea;">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input type="text" class="form-control" id="taskSearchInput" placeholder="Search tasks by title, description, or ID..."
+                                   style="border-color: #dee2e6; font-size: 14px;" onkeyup="filterTasks()">
+                            <button class="btn btn-outline-secondary" type="button" onclick="clearSearch()" title="Clear Search" style="border-color: #dee2e6;">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div id="searchResults" style="margin-top: 8px; font-size: 12px; color: #666; font-style: italic;"></div>
+                    </div>
+
+                    <!-- Right side: Controls and Stats -->
+                    <div class="d-flex align-items-center gap-3">
+                        <!-- Enhanced Control Buttons -->
+                        <div class="control-buttons d-flex align-items-center gap-2">
+                            <button onclick="loadRealData()" class="btn btn-primary enhanced-btn" title="Manual Refresh" style="
+                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                border: none;
+                                border-radius: 8px;
+                                padding: 10px 16px;
+                                font-weight: bold;
+                                box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+                                transition: all 0.3s ease;
+                            ">
+                                <i class="fas fa-sync-alt me-2" id="refreshIcon"></i>
+                                Refresh
+                            </button>
+                            <button onclick="clearAll()" class="btn btn-outline-warning enhanced-btn" title="Clear All" style="
+                                border: 2px solid #ffc107;
+                                border-radius: 8px;
+                                padding: 10px 16px;
+                                font-weight: bold;
+                                color: #856404;
+                                background: rgba(255, 193, 7, 0.1);
+                                transition: all 0.3s ease;
+                            ">
+                                <i class="fas fa-broom me-2"></i>
+                                Clear
+                            </button>
+                        </div>
+
+                        <!-- Auto-refresh indicator -->
+                        <div class="auto-refresh-indicator" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: rgba(40, 167, 69, 0.1); border-radius: 20px; border: 1px solid rgba(40, 167, 69, 0.2);">
+                            <div class="auto-refresh-dot" style="width: 8px; height: 8px; background: #28a745; border-radius: 50%; animation: pulse-dot 2s infinite;"></div>
+                            <span style="font-size: 12px; color: #155724; font-weight: 500;">Auto: <span id="refreshTimer">30s</span></span>
+                        </div>
+
+                        <!-- Quick stats -->
+                        <div class="quick-stats" id="quickStats" style="display: flex; gap: 15px;">
+                            <!-- Quick stats will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View Switcher -->
+            <div class="view-switcher" style="margin: 20px 0; text-align: center;">
+                <button type="button" onclick="showKanban()" class="btn btn-outline-primary active" id="kanbanBtn">📋 Kanban</button>
+                <button type="button" onclick="showTable()" class="btn btn-outline-secondary" id="tableBtn">📊 Table</button>
+                <button type="button" onclick="showGantt()" class="btn btn-outline-info" id="ganttBtn">📈 Gantt</button>
+            </div>
+
+            <!-- Simple Kanban Board -->
+            <div class="simple-kanban" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-top: 20px;">
+                
+                <!-- To Do Column -->
+                <div class="kanban-col" style="background: #f8f9fa; border-radius: 8px; padding: 15px; min-height: 400px;">
+                    <h4 style="text-align: center; color: #6c757d; margin-bottom: 15px;">
+                        📋 To Do
+                    </h4>
+                    <div id="todo-container" class="task-container" style="min-height: 300px; border: 2px dashed #dee2e6; border-radius: 5px; padding: 10px;">
+                        <!-- Tasks will be added here -->
+                    </div>
+                </div>
+
+                <!-- In Progress Column -->
+                <div class="kanban-col" style="background: rgba(173, 216, 230, 0.15); border-radius: 8px; padding: 15px; min-height: 400px;">
+                    <h4 style="text-align: center; color: rgba(23, 162, 184, 0.8); margin-bottom: 15px;">
+                        🔄 In Progress
+                    </h4>
+                    <div id="progress-container" class="task-container" style="min-height: 300px; border: 2px dashed rgba(173, 216, 230, 0.5); border-radius: 5px; padding: 10px;">
+                        <!-- Tasks will be added here -->
+                    </div>
+                </div>
+
+                <!-- Completed Column -->
+                <div class="kanban-col" style="background: rgba(144, 238, 144, 0.15); border-radius: 8px; padding: 15px; min-height: 400px;">
+                    <h4 style="text-align: center; color: rgba(40, 167, 69, 0.8); margin-bottom: 15px;">
+                        ✅ Completed
+                    </h4>
+                    <div id="completed-container" class="task-container" style="min-height: 300px; border: 2px dashed rgba(144, 238, 144, 0.5); border-radius: 5px; padding: 10px;">
+                        <!-- Tasks will be added here -->
+                    </div>
+                </div>
+
+                <!-- Cancelled Column -->
+                <div class="kanban-col" style="background: #ffebee; border-radius: 8px; padding: 15px; min-height: 400px;">
+                    <h4 style="text-align: center; color: #d32f2f; margin-bottom: 15px;">
+                        ❌ Cancelled
+                    </h4>
+                    <div id="cancelled-container" class="task-container" style="min-height: 300px; border: 2px dashed #ef9a9a; border-radius: 5px; padding: 10px;">
+                        <!-- Tasks will be added here -->
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Table View -->
+            <div id="table-view" style="display: none; margin-top: 20px;">
+                <div class="card">
+                    <div class="card-header">
+                        <h4><i class="fas fa-table"></i> Tasks Table View</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover" id="tasks-table">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Title</th>
+                                        <th>Description</th>
+                                        <th>Status</th>
+                                        <th>Priority</th>
+                                        <th>Progress</th>
+                                        <th>Due Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-body">
+                                    <!-- Table rows will be added here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gantt View -->
+            <div id="gantt-view" style="display: none; margin-top: 20px;">
+                <div class="card">
+                    <div class="card-header">
+                        <h4><i class="fas fa-chart-gantt"></i> Gantt Chart View</h4>
+                    </div>
+                    <div class="card-body">
+                        <div id="gantt-container" style="min-height: 400px; background: #f8f9fa; border-radius: 8px; padding: 20px;">
+                            <div id="gantt-timeline">
+                                <!-- Gantt chart will be rendered here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Task Edit Modal -->
+            <div class="modal fade" id="taskEditModal" tabindex="-1" aria-labelledby="taskEditModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                            <h5 class="modal-title" id="taskEditModalLabel">
+                                <i class="fas fa-edit"></i> Edit Task
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="editTaskForm">
+                                <input type="hidden" id="editTaskId">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="mb-3">
+                                            <label for="editTaskTitle" class="form-label">Title</label>
+                                            <input type="text" class="form-control" id="editTaskTitle" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="editTaskStatus" class="form-label">Status</label>
+                                            <select class="form-select" id="editTaskStatus">
+                                                <option value="NotStarted">Not Started</option>
+                                                <option value="InProgress">In Progress</option>
+                                                <option value="Completed">Completed</option>
+                                                <option value="Cancelled">Cancelled</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editTaskDescription" class="form-label">Description</label>
+                                    <textarea class="form-control" id="editTaskDescription" rows="3"></textarea>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="editTaskPriority" class="form-label">Priority</label>
+                                            <select class="form-select" id="editTaskPriority">
+                                                <option value="1">Low</option>
+                                                <option value="2">Medium</option>
+                                                <option value="3">High</option>
+                                                <option value="4">Critical</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="editTaskProgress" class="form-label">
+                                                Progress: <span id="progressValue" style="font-weight: bold; color: #667eea;">0%</span>
+                                            </label>
+                                            <div class="progress-slider-container" style="margin-top: 10px;">
+                                                <input type="range" class="form-range progress-slider" id="editTaskProgress"
+                                                       min="0" max="100" value="0"
+                                                       style="width: 100%; height: 8px; background: linear-gradient(to right, #667eea 0%, #667eea 0%, #e9ecef 0%, #e9ecef 100%); border-radius: 5px; outline: none; cursor: pointer;">
+                                                <div class="progress-labels" style="display: flex; justify-content: space-between; margin-top: 5px; font-size: 12px; color: #666;">
+                                                    <span>0%</span>
+                                                    <span>25%</span>
+                                                    <span>50%</span>
+                                                    <span>75%</span>
+                                                    <span>100%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="editTaskDueDate" class="form-label">Due Date</label>
+                                            <input type="date" class="form-control" id="editTaskDueDate">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="editTaskEstimatedHours" class="form-label">Estimated Hours</label>
+                                            <input type="number" class="form-control" id="editTaskEstimatedHours" min="0">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="editTaskActualHours" class="form-label">Actual Hours</label>
+                                            <input type="number" class="form-control" id="editTaskActualHours" min="0">
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                            <button type="button" class="btn btn-primary" onclick="saveTaskChanges()">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Debug Info - Commented out for production -->
+            <!--
+            <div id="debug-info" style="margin-top: 30px; padding: 15px; background: #f1f3f4; border-radius: 8px; font-family: monospace; font-size: 12px;">
+                <strong>Debug Output:</strong>
+                <div id="debug-output"></div>
+            </div>
+            -->
+        </div>
+    </div>
+</div>
+
+<style>
+/* Drag and Drop Styles */
+.task-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
+}
+
+.task-card:active {
+    cursor: grabbing !important;
+}
+
+.task-container {
+    transition: all 0.3s ease;
+}
+
+.task-container.drag-over {
+    background: #ffffcc !important;
+    border: 3px dashed #007bff !important;
+    transform: scale(1.02);
+}
+
+/* Dragging state */
+.task-card.dragging {
+    opacity: 0.5;
+    transform: rotate(5deg);
+    z-index: 1000;
+}
+
+/* Drop zone highlight */
+.drop-zone-active {
+    background: linear-gradient(45deg, #e3f2fd, #f3e5f5) !important;
+    border: 3px dashed #2196f3 !important;
+    animation: pulse 1s infinite;
+}
+
+@@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+}
+
+/* Success animation */
+.task-moved {
+    animation: taskMoved 0.5s ease;
+}
+
+@@keyframes taskMoved {
+    0% { transform: scale(1); background: white; }
+    50% { transform: scale(1.1); background: #d4edda; }
+    100% { transform: scale(1); background: white; }
+}
+
+/* View Switcher Styles */
+.view-switcher .btn {
+    margin: 0 5px;
+    border-radius: 25px;
+    padding: 8px 20px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.view-switcher .btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: #667eea;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* Table View Styles */
+.table-responsive {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.table th {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 15px;
+    font-weight: bold;
+}
+
+.table td {
+    padding: 12px 15px;
+    vertical-align: middle;
+    border-color: #e9ecef;
+}
+
+.table tbody tr:hover {
+    background-color: #f8f9fa;
+    transform: scale(1.01);
+    transition: all 0.2s ease;
+}
+
+/* Gantt Chart Styles */
+.gantt-row:hover {
+    transform: translateX(5px);
+    transition: all 0.3s ease;
+}
+
+.gantt-row .task-info:hover {
+    background: #e3f2fd !important;
+    border-color: #2196f3 !important;
+}
+
+.gantt-row .task-timeline:hover {
+    background: #fff3e0 !important;
+    border-color: #ff9800 !important;
+}
+
+/* Card improvements */
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 20px;
+}
+
+.card-header h4 {
+    margin: 0;
+    font-weight: bold;
+}
+
+/* Progress Slider Styles */
+.progress-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 8px;
+    border-radius: 5px;
+    background: #e9ecef;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.progress-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+    transition: all 0.3s ease;
+}
+
+.progress-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+}
+
+.progress-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+    transition: all 0.3s ease;
+}
+
+.progress-slider::-moz-range-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+}
+
+.progress-slider::-ms-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+    transition: all 0.3s ease;
+}
+
+.progress-slider-container {
+    position: relative;
+}
+
+.progress-labels span {
+    font-size: 11px;
+    color: #999;
+    font-weight: 500;
+}
+
+/* Progress value animation */
+#progressValue {
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+#progressValue.updating {
+    transform: scale(1.1);
+    color: #28a745 !important;
+}
+
+/* Enhanced Button Styles */
+.enhanced-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.enhanced-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15) !important;
+}
+
+.enhanced-btn i {
+    font-size: 14px;
+    display: inline-block;
+    width: auto;
+    height: auto;
+}
+
+.enhanced-btn .me-2 {
+    margin-right: 8px !important;
+}
+
+/* Specific button hover effects */
+.btn-primary.enhanced-btn:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4c93 100%) !important;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4) !important;
+}
+
+.btn-outline-warning.enhanced-btn:hover {
+    background: rgba(255, 193, 7, 0.2) !important;
+    border-color: #e0a800 !important;
+    color: #856404 !important;
+    box-shadow: 0 6px 20px rgba(255, 193, 7, 0.3) !important;
+}
+
+/* Ensure FontAwesome icons display */
+.fas, .fa {
+    font-family: "Font Awesome 5 Free" !important;
+    font-weight: 900 !important;
+    display: inline-block !important;
+}
+
+/* Auto-refresh indicator styling */
+.auto-refresh-indicator {
+    font-size: 12px;
+    border-radius: 20px;
+    padding: 8px 12px;
+    background: rgba(40, 167, 69, 0.1);
+    border: 1px solid rgba(40, 167, 69, 0.2);
+}
+
+/* Search container enhancements */
+.search-container .input-group-text {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-color: #dee2e6;
+    color: #667eea;
+    font-weight: bold;
+}
+
+.search-container .form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+/* Table action button improvements */
+.table .btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 20px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.table .btn-sm:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+}
+
+/* Auto-refresh indicator */
+@@keyframes pulse-dot {
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.2); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+@@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.auto-refresh-indicator {
+    font-size: 12px;
+    color: #666;
+}
+
+/* Search container styling */
+.search-container .input-group-text {
+    background: #f8f9fa;
+    border-color: #dee2e6;
+}
+
+.search-container .form-control {
+    border-color: #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.search-container .form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+/* Search results styling */
+#searchResults {
+    font-style: italic;
+    color: #6c757d;
+}
+
+/* Unified grey theme for progress bars only */
+.progress .progress-bar {
+    background-color: #6c757d !important;
+}
+
+/* Priority badges keep their colors */
+.priority-badge {
+    font-weight: bold;
+    border-radius: 12px;
+    padding: 4px 8px;
+    font-size: 11px;
+}
+
+/* Task card fade effect for search */
+.task-card {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.task-card.filtered {
+    opacity: 0.3;
+    transform: scale(0.95);
+}
+</style>
+
+<script>
+// Debug logging
+function debugLog(message) {
+    console.log(message);
+    const debugOutput = document.getElementById('debug-output');
+    if (debugOutput) {
+        debugOutput.innerHTML += '<div>' + new Date().toLocaleTimeString() + ': ' + message + '</div>';
+        debugOutput.scrollTop = debugOutput.scrollHeight;
+    }
+}
+
+// Test if containers exist
+function testContainers() {
+    debugLog('🔍 Testing container existence...');
+    
+    const containers = ['todo-container', 'progress-container', 'completed-container', 'cancelled-container'];
+    
+    containers.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            debugLog(`✅ Found container: ${id}`);
+            element.style.background = '#ffffcc';
+            element.innerHTML = `<div style="padding: 10px; text-align: center; color: #333;">CONTAINER ${id} FOUND ✅</div>`;
+        } else {
+            debugLog(`❌ Container NOT found: ${id}`);
+        }
+    });
+}
+
+// Load test data
+function loadTestData() {
+    debugLog('🧪 Loading test data...');
+    
+    clearAll();
+    
+    // Add test tasks
+    addTaskToContainer('todo-container', 'Test Task 1', 'This is a test task in To Do');
+    addTaskToContainer('progress-container', 'Test Task 2', 'This is a test task in Progress');
+    addTaskToContainer('completed-container', 'Test Task 3', 'This is a test task in Completed');
+    
+    debugLog('✅ Test data loaded successfully');
+}
+
+// Load real data from API
+async function loadRealData() {
+    debugLog('📊 Loading real data from API...');
+    
+    try {
+        const response = await fetch('/Tasks/GetKanbanData');
+        const result = await response.json();
+        
+        debugLog(`API Response: ${JSON.stringify(result)}`);
+        
+        if (result.success) {
+            clearAll();
+            renderRealData(result.data);
+        } else {
+            debugLog(`❌ API Error: ${result.message}`);
+        }
+    } catch (error) {
+        debugLog(`❌ Fetch Error: ${error.message}`);
+    }
+}
+
+// Render real data
+function renderRealData(data) {
+    debugLog('🎨 Rendering real data...');
+
+    // Store data globally
+    currentTasksData = data;
+
+    if (data.notStarted) {
+        data.notStarted.forEach(task => {
+            addRealTaskToContainer('todo-container', task);
+        });
+    }
+
+    if (data.inProgress) {
+        data.inProgress.forEach(task => {
+            addRealTaskToContainer('progress-container', task);
+        });
+    }
+
+    if (data.completed) {
+        data.completed.forEach(task => {
+            addRealTaskToContainer('completed-container', task);
+        });
+    }
+
+    if (data.cancelled) {
+        data.cancelled.forEach(task => {
+            addRealTaskToContainer('cancelled-container', task);
+        });
+    }
+
+    // Update stats
+    updateQuickStats();
+
+    debugLog('✅ Real data rendered successfully');
+}
+
+// Add a simple task to container
+function addTaskToContainer(containerId, title, description) {
+    const container = document.getElementById(containerId);
+    if (!container) {
+        debugLog(`❌ Container ${containerId} not found!`);
+        return;
+    }
+
+    const taskDiv = document.createElement('div');
+    taskDiv.className = 'task-card';
+    taskDiv.draggable = true;
+    taskDiv.style.cssText = 'background: white; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: grab; transition: all 0.3s ease;';
+    taskDiv.innerHTML = `
+        <div style="font-weight: bold; margin-bottom: 5px;">${title}</div>
+        <div style="font-size: 12px; color: #666;">${description}</div>
+        <div style="font-size: 10px; color: #999; margin-top: 5px;">📍 ${containerId}</div>
+    `;
+
+    // Add drag event listeners
+    taskDiv.addEventListener('dragstart', handleDragStart);
+    taskDiv.addEventListener('dragend', handleDragEnd);
+
+    container.appendChild(taskDiv);
+    debugLog(`✅ Added draggable "${title}" to ${containerId}`);
+}
+
+// Add a real task to container
+function addRealTaskToContainer(containerId, task) {
+    const container = document.getElementById(containerId);
+    if (!container) {
+        debugLog(`❌ Container ${containerId} not found!`);
+        return;
+    }
+
+    const taskDiv = document.createElement('div');
+    taskDiv.className = 'task-card';
+    taskDiv.draggable = true;
+    taskDiv.setAttribute('data-task-id', task.id);
+    taskDiv.setAttribute('data-task-data', JSON.stringify(task));
+    taskDiv.style.cssText = 'background: white; padding: 15px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); cursor: grab; transition: all 0.3s ease; position: relative;';
+
+    // Very subtle pastel priority colors
+    const priorityColors = {
+        1: 'rgba(144, 238, 144, 0.4)',  // Low - Very light pastel green
+        2: 'rgba(173, 216, 230, 0.4)',  // Medium - Very light pastel blue
+        3: 'rgba(255, 218, 185, 0.4)',  // High - Very light pastel peach
+        4: 'rgba(255, 182, 193, 0.4)'   // Critical - Very light pastel pink
+    };
+    const priorityColor = priorityColors[task.priority] || 'rgba(211, 211, 211, 0.4)';
+    const progressColor = '#6c757d'; // Keep progress bars grey
+
+    taskDiv.innerHTML = `
+        <div class="task-header" style="display: flex; justify-content: between; align-items: flex-start; margin-bottom: 10px;">
+            <div style="flex: 1;">
+                <div style="font-weight: bold; margin-bottom: 5px; color: #333; font-size: 14px;">${task.title || 'Untitled'}</div>
+                <div style="font-size: 12px; color: #666; line-height: 1.4;">${(task.description || 'No description').substring(0, 80)}...</div>
+            </div>
+            <button class="task-edit-btn" onclick="openTaskEditModal(${task.id})" style="
+                background: none;
+                border: none;
+                color: #667eea;
+                font-size: 14px;
+                cursor: pointer;
+                padding: 5px;
+                border-radius: 50%;
+                transition: all 0.2s ease;
+                margin-left: 10px;
+            " title="Edit Task">
+                <i class="fas fa-edit"></i>
+            </button>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-size: 10px; background: #e9ecef; padding: 3px 8px; border-radius: 12px; font-weight: bold;">ID: ${task.id}</span>
+            <span style="font-size: 10px; background: ${priorityColor}; color: #495057; padding: 3px 8px; border-radius: 12px; font-weight: bold; border: 1px solid rgba(108, 117, 125, 0.2);">
+                ${['', 'Low', 'Medium', 'High', 'Critical'][task.priority] || 'Medium'}
+            </span>
+        </div>
+        <div style="margin-bottom: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
+                <span style="font-size: 11px; color: #666;">Progress</span>
+                <span style="font-size: 11px; color: #666; font-weight: bold;">${task.progress || 0}%</span>
+            </div>
+            <div style="background: #e9ecef; height: 6px; border-radius: 3px; overflow: hidden;">
+                <div style="background: ${progressColor}; height: 100%; width: ${task.progress || 0}%; transition: width 0.3s ease;"></div>
+            </div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: #999;">
+            <span>${task.status}</span>
+            <span>${task.dueDate || 'No due date'}</span>
+        </div>
+    `;
+
+    // Add drag event listeners
+    taskDiv.addEventListener('dragstart', handleDragStart);
+    taskDiv.addEventListener('dragend', handleDragEnd);
+
+    // Add hover effect for edit button
+    const editBtn = taskDiv.querySelector('.task-edit-btn');
+    if (editBtn) {
+        editBtn.addEventListener('mouseenter', function() {
+            this.style.background = '#667eea';
+            this.style.color = 'white';
+        });
+        editBtn.addEventListener('mouseleave', function() {
+            this.style.background = 'none';
+            this.style.color = '#667eea';
+        });
+    }
+
+    container.appendChild(taskDiv);
+    debugLog(`✅ Added enhanced task "${task.title}" (ID: ${task.id}) to ${containerId}`);
+}
+
+// Clear all containers
+function clearAll() {
+    debugLog('🧹 Clearing all containers...');
+
+    const containers = ['todo-container', 'progress-container', 'completed-container', 'cancelled-container'];
+
+    containers.forEach(id => {
+        const container = document.getElementById(id);
+        if (container) {
+            container.innerHTML = '';
+            container.style.background = '';
+        }
+    });
+
+    debugLog('✅ All containers cleared');
+}
+
+// Initialize drag and drop
+function initDragDrop() {
+    debugLog('🎯 Initializing drag and drop...');
+
+    const containers = ['todo-container', 'progress-container', 'completed-container', 'cancelled-container'];
+
+    containers.forEach(containerId => {
+        const container = document.getElementById(containerId);
+        if (!container) {
+            debugLog(`❌ Container ${containerId} not found for drag/drop`);
+            return;
+        }
+
+        // Make container a drop zone
+        container.addEventListener('dragover', handleDragOver);
+        container.addEventListener('drop', handleDrop);
+        container.addEventListener('dragenter', handleDragEnter);
+        container.addEventListener('dragleave', handleDragLeave);
+
+        debugLog(`✅ Drag/drop enabled for ${containerId}`);
+    });
+
+    // Make existing tasks draggable
+    makeTasksDraggable();
+
+    debugLog('✅ Drag and drop initialized successfully');
+}
+
+// Make all tasks draggable
+function makeTasksDraggable() {
+    const taskCards = document.querySelectorAll('.task-card');
+    taskCards.forEach(card => {
+        card.draggable = true;
+        card.addEventListener('dragstart', handleDragStart);
+        card.addEventListener('dragend', handleDragEnd);
+        card.style.cursor = 'grab';
+    });
+    debugLog(`✅ Made ${taskCards.length} tasks draggable`);
+}
+
+// Drag and drop event handlers
+let draggedElement = null;
+
+function handleDragStart(e) {
+    draggedElement = e.target;
+    e.target.style.opacity = '0.5';
+    e.target.style.transform = 'rotate(5deg)';
+    debugLog(`🎯 Started dragging: ${e.target.querySelector('div').textContent}`);
+}
+
+function handleDragEnd(e) {
+    e.target.style.opacity = '1';
+    e.target.style.transform = 'none';
+    draggedElement = null;
+    debugLog('🎯 Drag ended');
+}
+
+function handleDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+}
+
+function handleDragEnter(e) {
+    e.preventDefault();
+    if (e.target.classList.contains('task-container')) {
+        e.target.style.background = '#ffffcc';
+        e.target.style.border = '3px dashed #007bff';
+    }
+}
+
+function handleDragLeave(e) {
+    if (e.target.classList.contains('task-container')) {
+        e.target.style.background = '';
+        e.target.style.border = '2px dashed #dee2e6';
+    }
+}
+
+function handleDrop(e) {
+    e.preventDefault();
+
+    const dropContainer = e.target.closest('.task-container');
+    if (!dropContainer || !draggedElement) {
+        debugLog('❌ Invalid drop target or no dragged element');
+        return;
+    }
+
+    // Reset container styles
+    dropContainer.style.background = '';
+    dropContainer.style.border = '2px dashed #dee2e6';
+
+    // Get task info
+    const taskTitle = draggedElement.querySelector('div').textContent;
+    const fromContainer = draggedElement.parentElement.id;
+    const toContainer = dropContainer.id;
+
+    if (fromContainer === toContainer) {
+        debugLog('⚠️ Dropped in same container');
+        return;
+    }
+
+    // Move the task
+    dropContainer.appendChild(draggedElement);
+
+    // Update the container indicator in the task
+    const containerIndicator = draggedElement.querySelector('div:last-child');
+    if (containerIndicator) {
+        containerIndicator.textContent = `📍 ${toContainer}`;
+    }
+
+    debugLog(`✅ Moved "${taskTitle}" from ${fromContainer} to ${toContainer}`);
+
+    // If it's a real task with an ID, update via API
+    const taskId = draggedElement.getAttribute('data-task-id');
+    if (taskId) {
+        updateTaskStatus(taskId, toContainer);
+    }
+}
+
+// Update task status via API
+async function updateTaskStatus(taskId, containerId) {
+    debugLog(`📡 Updating task ${taskId} status via API...`);
+
+    // Map container to status
+    const statusMap = {
+        'todo-container': 'NotStarted',
+        'progress-container': 'InProgress',
+        'completed-container': 'Completed',
+        'cancelled-container': 'Cancelled'
+    };
+
+    const newStatus = statusMap[containerId];
+    if (!newStatus) {
+        debugLog(`❌ Unknown container: ${containerId}`);
+        return;
+    }
+
+    try {
+        const response = await fetch('/Tasks/UpdateKanbanOrder', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                taskId: parseInt(taskId),
+                newStatus: newStatus,
+                newOrder: 1
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            debugLog(`✅ Task ${taskId} updated to ${newStatus} successfully`);
+        } else {
+            debugLog(`❌ API Error: ${result.message}`);
+        }
+    } catch (error) {
+        debugLog(`❌ Update Error: ${error.message}`);
+    }
+}
+
+// Global variables for auto-refresh
+let autoRefreshInterval = null;
+let refreshCountdown = 30;
+
+// Auto-load real data on page load
+document.addEventListener('DOMContentLoaded', function() {
+    debugLog('🚀 Page loaded - initializing dashboard...');
+
+    // Initialize view switcher
+    debugLog('🔄 Initializing view switcher...');
+
+    // Make sure Kanban is the default view
+    showKanban();
+
+    // Load real data immediately
+    setTimeout(() => {
+        loadRealData();
+        setTimeout(() => {
+            initDragDrop();
+            startAutoRefresh();
+        }, 1000);
+    }, 500);
+});
+
+// Start automatic refresh
+function startAutoRefresh() {
+    debugLog('⏰ Starting auto-refresh every 30 seconds...');
+
+    // Clear any existing interval
+    if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+    }
+
+    // Start countdown timer
+    autoRefreshInterval = setInterval(() => {
+        refreshCountdown--;
+        updateRefreshTimer();
+
+        if (refreshCountdown <= 0) {
+            // Refresh data
+            loadRealData();
+            refreshCountdown = 30; // Reset countdown
+
+            // Add visual feedback to refresh icon
+            const refreshIcon = document.getElementById('refreshIcon');
+            if (refreshIcon) {
+                refreshIcon.style.animation = 'spin 1s linear';
+                setTimeout(() => {
+                    refreshIcon.style.animation = '';
+                }, 1000);
+            }
+        }
+    }, 1000);
+}
+
+// Update refresh timer display
+function updateRefreshTimer() {
+    const timerElement = document.getElementById('refreshTimer');
+    if (timerElement) {
+        timerElement.textContent = refreshCountdown + 's';
+    }
+}
+
+// ========== SEARCH FUNCTIONALITY ==========
+
+// Filter tasks based on search input
+function filterTasks() {
+    const searchTerm = document.getElementById('taskSearchInput').value.toLowerCase().trim();
+    const searchResults = document.getElementById('searchResults');
+
+    if (searchTerm === '') {
+        // Show all tasks
+        showAllTasks();
+        searchResults.textContent = '';
+        return;
+    }
+
+    let visibleCount = 0;
+    let totalCount = 0;
+
+    // Filter Kanban cards
+    const taskCards = document.querySelectorAll('.task-card');
+    taskCards.forEach(card => {
+        totalCount++;
+        const taskData = JSON.parse(card.getAttribute('data-task-data') || '{}');
+        const title = (taskData.title || '').toLowerCase();
+        const description = (taskData.description || '').toLowerCase();
+        const id = (taskData.id || '').toString();
+
+        const matches = title.includes(searchTerm) ||
+                       description.includes(searchTerm) ||
+                       id.includes(searchTerm);
+
+        if (matches) {
+            card.style.display = 'block';
+            card.style.opacity = '1';
+            visibleCount++;
+        } else {
+            card.style.display = 'none';
+            card.style.opacity = '0.3';
+        }
+    });
+
+    // Filter table rows
+    const tableRows = document.querySelectorAll('#table-body tr');
+    tableRows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        if (cells.length > 0) {
+            const rowText = Array.from(cells).map(cell => cell.textContent.toLowerCase()).join(' ');
+
+            if (rowText.includes(searchTerm)) {
+                row.style.display = 'table-row';
+            } else {
+                row.style.display = 'none';
+            }
+        }
+    });
+
+    // Update search results
+    searchResults.textContent = `Showing ${visibleCount} of ${totalCount} tasks`;
+    debugLog(`🔍 Search "${searchTerm}": ${visibleCount}/${totalCount} tasks found`);
+}
+
+// Show all tasks (clear filter)
+function showAllTasks() {
+    // Show all Kanban cards
+    const taskCards = document.querySelectorAll('.task-card');
+    taskCards.forEach(card => {
+        card.style.display = 'block';
+        card.style.opacity = '1';
+    });
+
+    // Show all table rows
+    const tableRows = document.querySelectorAll('#table-body tr');
+    tableRows.forEach(row => {
+        row.style.display = 'table-row';
+    });
+}
+
+// Clear search
+function clearSearch() {
+    document.getElementById('taskSearchInput').value = '';
+    showAllTasks();
+    document.getElementById('searchResults').textContent = '';
+    debugLog('🔍 Search cleared - showing all tasks');
+}
+
+// ========== TASK EDITING FUNCTIONS ==========
+
+// Open task edit modal
+function openTaskEditModal(taskId, buttonElement = null) {
+    debugLog(`✏️ Opening edit modal for task ${taskId}`);
+
+    let taskData = null;
+
+    // Try to get task data from button element first (for table view)
+    if (buttonElement && buttonElement.hasAttribute('data-task-data')) {
+        try {
+            taskData = JSON.parse(buttonElement.getAttribute('data-task-data'));
+            debugLog('📊 Using task data from table button');
+        } catch (e) {
+            debugLog('❌ Error parsing table button data, falling back to global data');
+        }
+    }
+
+    // If no data from button, try to find in global currentTasksData
+    if (!taskData && currentTasksData) {
+        const allTasks = [
+            ...(currentTasksData.notStarted || []),
+            ...(currentTasksData.inProgress || []),
+            ...(currentTasksData.completed || []),
+            ...(currentTasksData.cancelled || [])
+        ];
+        taskData = allTasks.find(task => task.id == taskId);
+        if (taskData) {
+            debugLog('🌐 Using task data from global data');
+        }
+    }
+
+    // Last resort: try to find from Kanban card
+    if (!taskData) {
+        const taskCard = document.querySelector(`[data-task-id="${taskId}"]`);
+        if (taskCard && taskCard.hasAttribute('data-task-data')) {
+            try {
+                taskData = JSON.parse(taskCard.getAttribute('data-task-data'));
+                debugLog('📋 Using task data from Kanban card');
+            } catch (e) {
+                debugLog('❌ Error parsing Kanban card data');
+            }
+        }
+    }
+
+    if (!taskData) {
+        debugLog(`❌ No task data found for ID ${taskId}`);
+        alert('Error: Task data not found. Please refresh the page and try again.');
+        return;
+    }
+
+    // Populate modal fields
+    document.getElementById('editTaskId').value = taskData.id;
+    document.getElementById('editTaskTitle').value = taskData.title || '';
+    document.getElementById('editTaskDescription').value = taskData.description || '';
+    document.getElementById('editTaskStatus').value = taskData.status || 'NotStarted';
+    document.getElementById('editTaskPriority').value = taskData.priority || 2;
+    document.getElementById('editTaskDueDate').value = taskData.dueDate || '';
+    document.getElementById('editTaskEstimatedHours').value = taskData.estimatedHours || 0;
+    document.getElementById('editTaskActualHours').value = taskData.actualHours || 0;
+
+    // Set progress slider and initialize
+    const progressSlider = document.getElementById('editTaskProgress');
+    const progressValue = document.getElementById('progressValue');
+    const initialProgress = taskData.progress || 0;
+
+    progressSlider.value = initialProgress;
+    progressValue.textContent = initialProgress + '%';
+    updateProgressSliderBackground(progressSlider, initialProgress);
+
+    // Add progress slider event listener
+    progressSlider.addEventListener('input', function() {
+        const value = this.value;
+        progressValue.textContent = value + '%';
+        progressValue.classList.add('updating');
+        updateProgressSliderBackground(this, value);
+
+        // Remove updating class after animation
+        setTimeout(() => {
+            progressValue.classList.remove('updating');
+        }, 300);
+    });
+
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('taskEditModal'));
+    modal.show();
+
+    debugLog(`✅ Edit modal opened for "${taskData.title}" with ${initialProgress}% progress`);
+}
+
+// Update progress slider background
+function updateProgressSliderBackground(slider, value) {
+    const percentage = value;
+    const gradient = `linear-gradient(to right, #6c757d 0%, #6c757d ${percentage}%, #e9ecef ${percentage}%, #e9ecef 100%)`;
+    slider.style.background = gradient;
+
+    // Unified grey color for progress value
+    const progressValue = document.getElementById('progressValue');
+    progressValue.style.color = '#6c757d';
+}
+
+// Save task changes
+async function saveTaskChanges() {
+    debugLog('💾 Saving task changes...');
+
+    const taskData = {
+        id: parseInt(document.getElementById('editTaskId').value),
+        title: document.getElementById('editTaskTitle').value,
+        description: document.getElementById('editTaskDescription').value,
+        status: document.getElementById('editTaskStatus').value,
+        priority: parseInt(document.getElementById('editTaskPriority').value),
+        progress: parseInt(document.getElementById('editTaskProgress').value),
+        dueDate: document.getElementById('editTaskDueDate').value,
+        estimatedHours: parseInt(document.getElementById('editTaskEstimatedHours').value),
+        actualHours: parseInt(document.getElementById('editTaskActualHours').value)
+    };
+
+    debugLog(`Task data to save: ${JSON.stringify(taskData)}`);
+
+    try {
+        const response = await fetch('/Tasks/UpdateTask', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(taskData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            debugLog(`✅ Task ${taskData.id} updated successfully`);
+
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('taskEditModal'));
+            modal.hide();
+
+            // Refresh all data and views
+            setTimeout(() => {
+                loadRealData();
+                // Also refresh table and gantt if they're currently visible
+                const currentView = document.querySelector('.view-switcher .btn.active');
+                if (currentView) {
+                    const viewId = currentView.id;
+                    if (viewId === 'tableBtn') {
+                        setTimeout(() => loadTableData(), 500);
+                    } else if (viewId === 'ganttBtn') {
+                        setTimeout(() => loadGanttData(), 500);
+                    }
+                }
+            }, 200);
+
+            // Show success message
+            showSuccessMessage('Task updated successfully!');
+        } else {
+            debugLog(`❌ Update failed: ${result.message}`);
+            showErrorMessage('Failed to update task: ' + result.message);
+        }
+    } catch (error) {
+        debugLog(`❌ Update error: ${error.message}`);
+        showErrorMessage('Error updating task: ' + error.message);
+    }
+}
+
+// Show success message
+function showSuccessMessage(message) {
+    const alert = document.createElement('div');
+    alert.className = 'alert alert-success alert-dismissible fade show';
+    alert.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    alert.innerHTML = `
+        <i class="fas fa-check-circle"></i> ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(alert);
+
+    setTimeout(() => {
+        if (alert.parentNode) {
+            alert.parentNode.removeChild(alert);
+        }
+    }, 5000);
+}
+
+// Show error message
+function showErrorMessage(message) {
+    const alert = document.createElement('div');
+    alert.className = 'alert alert-danger alert-dismissible fade show';
+    alert.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    alert.innerHTML = `
+        <i class="fas fa-exclamation-circle"></i> ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(alert);
+
+    setTimeout(() => {
+        if (alert.parentNode) {
+            alert.parentNode.removeChild(alert);
+        }
+    }, 5000);
+}
+
+// Update quick stats
+function updateQuickStats() {
+    if (!currentTasksData) return;
+
+    const stats = {
+        total: 0,
+        notStarted: currentTasksData.notStarted?.length || 0,
+        inProgress: currentTasksData.inProgress?.length || 0,
+        completed: currentTasksData.completed?.length || 0,
+        cancelled: currentTasksData.cancelled?.length || 0
+    };
+
+    stats.total = stats.notStarted + stats.inProgress + stats.completed + stats.cancelled;
+
+    // Update total count in header
+    const totalCount = document.getElementById('totalTasksCount');
+    if (totalCount) {
+        totalCount.textContent = stats.total;
+    }
+
+    // Update quick stats
+    const quickStats = document.getElementById('quickStats');
+    if (quickStats) {
+        quickStats.innerHTML = `
+            <div class="stat-item" style="text-align: center;">
+                <div style="font-size: 1.5rem; font-weight: bold; color: #6c757d;">${stats.notStarted}</div>
+                <div style="font-size: 0.8rem; color: #666;">To Do</div>
+            </div>
+            <div class="stat-item" style="text-align: center;">
+                <div style="font-size: 1.5rem; font-weight: bold; color: #007bff;">${stats.inProgress}</div>
+                <div style="font-size: 0.8rem; color: #666;">In Progress</div>
+            </div>
+            <div class="stat-item" style="text-align: center;">
+                <div style="font-size: 1.5rem; font-weight: bold; color: #28a745;">${stats.completed}</div>
+                <div style="font-size: 0.8rem; color: #666;">Completed</div>
+            </div>
+            <div class="stat-item" style="text-align: center;">
+                <div style="font-size: 1.5rem; font-weight: bold; color: #dc3545;">${stats.cancelled}</div>
+                <div style="font-size: 0.8rem; color: #666;">Cancelled</div>
+            </div>
+        `;
+    }
+}
+
+// ========== NEW VIEW SWITCHING FUNCTIONS ==========
+
+// Global variable to store current tasks data
+let currentTasksData = null;
+
+// Show Kanban view
+function showKanban() {
+    debugLog('🔄 showKanban() called');
+
+    const kanbanEl = document.getElementById('simple-kanban');
+    const tableEl = document.getElementById('table-view');
+    const ganttEl = document.getElementById('gantt-view');
+
+    debugLog(`Elements found: kanban=${!!kanbanEl}, table=${!!tableEl}, gantt=${!!ganttEl}`);
+
+    if (kanbanEl) kanbanEl.style.display = 'grid';
+    if (tableEl) tableEl.style.display = 'none';
+    if (ganttEl) ganttEl.style.display = 'none';
+
+    // Update button states
+    const kanbanBtn = document.getElementById('kanbanBtn');
+    const tableBtn = document.getElementById('tableBtn');
+    const ganttBtn = document.getElementById('ganttBtn');
+
+    if (kanbanBtn) kanbanBtn.classList.add('active');
+    if (tableBtn) tableBtn.classList.remove('active');
+    if (ganttBtn) ganttBtn.classList.remove('active');
+
+    debugLog('📋 Switched to Kanban view');
+}
+
+// Show Table view
+function showTable() {
+    debugLog('🔄 showTable() called');
+
+    const kanbanEl = document.getElementById('simple-kanban');
+    const tableEl = document.getElementById('table-view');
+    const ganttEl = document.getElementById('gantt-view');
+
+    debugLog(`Elements found: kanban=${!!kanbanEl}, table=${!!tableEl}, gantt=${!!ganttEl}`);
+
+    if (kanbanEl) kanbanEl.style.display = 'none';
+    if (tableEl) tableEl.style.display = 'block';
+    if (ganttEl) ganttEl.style.display = 'none';
+
+    // Update button states
+    const kanbanBtn = document.getElementById('kanbanBtn');
+    const tableBtn = document.getElementById('tableBtn');
+    const ganttBtn = document.getElementById('ganttBtn');
+
+    if (kanbanBtn) kanbanBtn.classList.remove('active');
+    if (tableBtn) tableBtn.classList.add('active');
+    if (ganttBtn) ganttBtn.classList.remove('active');
+
+    debugLog('📊 Switched to Table view');
+    loadTableData();
+}
+
+// Show Gantt view
+function showGantt() {
+    debugLog('🔄 showGantt() called');
+
+    const kanbanEl = document.getElementById('simple-kanban');
+    const tableEl = document.getElementById('table-view');
+    const ganttEl = document.getElementById('gantt-view');
+
+    debugLog(`Elements found: kanban=${!!kanbanEl}, table=${!!tableEl}, gantt=${!!ganttEl}`);
+
+    if (kanbanEl) kanbanEl.style.display = 'none';
+    if (tableEl) tableEl.style.display = 'none';
+    if (ganttEl) ganttEl.style.display = 'block';
+
+    // Update button states
+    const kanbanBtn = document.getElementById('kanbanBtn');
+    const tableBtn = document.getElementById('tableBtn');
+    const ganttBtn = document.getElementById('ganttBtn');
+
+    if (kanbanBtn) kanbanBtn.classList.remove('active');
+    if (tableBtn) tableBtn.classList.remove('active');
+    if (ganttBtn) ganttBtn.classList.add('active');
+
+    debugLog('📈 Switched to Gantt view');
+    loadGanttData();
+}
+
+// Load data for table view
+async function loadTableData() {
+    debugLog('📊 Loading table data...');
+
+    try {
+        const response = await fetch('/Tasks/GetKanbanData');
+        const result = await response.json();
+
+        if (result.success) {
+            currentTasksData = result.data;
+            renderTableData();
+        } else {
+            debugLog(`❌ Table API Error: ${result.message}`);
+        }
+    } catch (error) {
+        debugLog(`❌ Table Fetch Error: ${error.message}`);
+    }
+}
+
+// Render table data
+function renderTableData() {
+    const tableBody = document.getElementById('table-body');
+    if (!tableBody) return;
+
+    tableBody.innerHTML = '';
+
+    // Combine all tasks from different statuses
+    const allTasks = [
+        ...(currentTasksData.notStarted || []),
+        ...(currentTasksData.inProgress || []),
+        ...(currentTasksData.completed || []),
+        ...(currentTasksData.cancelled || [])
+    ];
+
+    allTasks.forEach(task => {
+        const priorityInfo = getPriorityInfo(task.priority);
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${task.id}</td>
+            <td>${task.title || 'Untitled'}</td>
+            <td>${(task.description || 'No description').substring(0, 50)}...</td>
+            <td>
+                <span class="status-badge" style="${getStatusStyle(task.status)} padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">
+                    ${task.status}
+                </span>
+            </td>
+            <td>
+                <span class="priority-badge" style="background: ${priorityInfo.color}; color: #495057; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; border: 1px solid rgba(108, 117, 125, 0.2);">
+                    ${priorityInfo.text}
+                </span>
+            </td>
+            <td>
+                <div class="progress" style="height: 20px;">
+                    <div class="progress-bar" style="width: ${task.progress || 0}%; background-color: #6c757d !important;">${task.progress || 0}%</div>
+                </div>
+            </td>
+            <td>${task.dueDate || 'No due date'}</td>
+            <td>
+                <button class="btn btn-sm btn-outline-primary table-edit-btn" onclick="openTaskEditModal(${task.id}, this)" title="Edit Task" data-task-data='${JSON.stringify(task).replace(/'/g, "&apos;")}'>
+                    <i class="fas fa-edit"></i> Edit
+                </button>
+            </td>
+        `;
+        tableBody.appendChild(row);
+    });
+
+    debugLog(`✅ Rendered ${allTasks.length} tasks in table`);
+}
+
+// Get status color for badges (softer colors)
+function getStatusColor(status) {
+    switch(status) {
+        case 'NotStarted': return 'light';
+        case 'InProgress': return 'info';      // Softer blue instead of primary
+        case 'Completed': return 'light';      // Light instead of strong green
+        case 'Cancelled': return 'secondary';  // Grey instead of red
+        default: return 'light';
+    }
+}
+
+// Get custom status styling for softer appearance
+function getStatusStyle(status) {
+    switch(status) {
+        case 'NotStarted':
+            return 'background: rgba(248, 249, 250, 0.8); color: #6c757d; border: 1px solid rgba(108, 117, 125, 0.3);';
+        case 'InProgress':
+            return 'background: rgba(173, 216, 230, 0.3); color: #0c5460; border: 1px solid rgba(23, 162, 184, 0.3);';
+        case 'Completed':
+            return 'background: rgba(144, 238, 144, 0.3); color: #0f5132; border: 1px solid rgba(40, 167, 69, 0.3);';
+        case 'Cancelled':
+            return 'background: rgba(248, 249, 250, 0.8); color: #6c757d; border: 1px solid rgba(108, 117, 125, 0.3);';
+        default:
+            return 'background: rgba(248, 249, 250, 0.8); color: #6c757d; border: 1px solid rgba(108, 117, 125, 0.3);';
+    }
+}
+
+// Get priority color and text (pastel)
+function getPriorityInfo(priority) {
+    const priorityMap = {
+        1: { text: 'Low', color: 'rgba(144, 238, 144, 0.4)' },     // Very light pastel green
+        2: { text: 'Medium', color: 'rgba(173, 216, 230, 0.4)' },  // Very light pastel blue
+        3: { text: 'High', color: 'rgba(255, 218, 185, 0.4)' },    // Very light pastel peach
+        4: { text: 'Critical', color: 'rgba(255, 182, 193, 0.4)' } // Very light pastel pink
+    };
+    return priorityMap[priority] || { text: 'Medium', color: 'rgba(211, 211, 211, 0.4)' };
+}
+
+// Edit task from table (now uses unified modal)
+// This function is no longer needed as we use openTaskEditModal directly
+
+// Load data for Gantt view
+async function loadGanttData() {
+    debugLog('📈 Loading Gantt data...');
+
+    try {
+        const response = await fetch('/Tasks/GetKanbanData');
+        const result = await response.json();
+
+        if (result.success) {
+            currentTasksData = result.data;
+            renderGanttChart();
+        } else {
+            debugLog(`❌ Gantt API Error: ${result.message}`);
+        }
+    } catch (error) {
+        debugLog(`❌ Gantt Fetch Error: ${error.message}`);
+    }
+}
+
+// Render Gantt chart
+function renderGanttChart() {
+    const ganttContainer = document.getElementById('gantt-timeline');
+    if (!ganttContainer) return;
+
+    ganttContainer.innerHTML = '';
+
+    // Combine all tasks
+    const allTasks = [
+        ...(currentTasksData.notStarted || []),
+        ...(currentTasksData.inProgress || []),
+        ...(currentTasksData.completed || []),
+        ...(currentTasksData.cancelled || [])
+    ];
+
+    // Create simple Gantt chart
+    const ganttHTML = `
+        <div class="gantt-header" style="display: grid; grid-template-columns: 200px 1fr; gap: 10px; margin-bottom: 20px;">
+            <div style="font-weight: bold; padding: 10px; background: #343a40; color: white; border-radius: 5px;">Task</div>
+            <div style="font-weight: bold; padding: 10px; background: #343a40; color: white; border-radius: 5px;">Timeline</div>
+        </div>
+        <div class="gantt-body">
+            ${allTasks.map(task => `
+                <div class="gantt-row" style="display: grid; grid-template-columns: 200px 1fr; gap: 10px; margin-bottom: 10px;">
+                    <div class="task-info" style="padding: 10px; background: white; border: 1px solid #ddd; border-radius: 5px;">
+                        <div style="font-weight: bold; font-size: 12px;">${task.title || 'Untitled'}</div>
+                        <div style="font-size: 10px; color: #666;">ID: ${task.id}</div>
+                        <div style="font-size: 10px;">
+                            <span style="background: ${getGanttPriorityColor(task.priority)}; color: #495057; padding: 2px 6px; border-radius: 8px; font-size: 9px; font-weight: bold; border: 1px solid rgba(108, 117, 125, 0.2);">
+                                ${['', 'Low', 'Medium', 'High', 'Critical'][task.priority] || 'Medium'}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="task-timeline" style="padding: 10px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 5px; position: relative;">
+                        <div class="progress-bar" style="
+                            background: ${getGanttProgressColor(task.priority)};
+                            height: 20px;
+                            width: ${task.progress || 0}%;
+                            border-radius: 10px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: white;
+                            font-size: 11px;
+                            font-weight: bold;
+                        ">
+                            ${task.progress || 0}%
+                        </div>
+                        <div style="font-size: 10px; color: #666; margin-top: 5px;">
+                            Due: ${task.dueDate || 'No due date'}
+                        </div>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+
+    ganttContainer.innerHTML = ganttHTML;
+    debugLog(`✅ Rendered ${allTasks.length} tasks in Gantt chart`);
+}
+
+// Get Gantt color based on priority (keeping progress bars grey)
+function getGanttProgressColor(priority) {
+    // Always return grey for progress bars to maintain consistency
+    return '#6c757d';
+}
+
+// Get priority color for Gantt labels (pastel)
+function getGanttPriorityColor(priority) {
+    const priorityColors = {
+        1: 'rgba(144, 238, 144, 0.4)',  // Low - Very light pastel green
+        2: 'rgba(173, 216, 230, 0.4)',  // Medium - Very light pastel blue
+        3: 'rgba(255, 218, 185, 0.4)',  // High - Very light pastel peach
+        4: 'rgba(255, 182, 193, 0.4)'   // Critical - Very light pastel pink
+    };
+    return priorityColors[priority] || 'rgba(211, 211, 211, 0.4)';
+}
+</script>

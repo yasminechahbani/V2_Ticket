@@ -1,0 +1,109 @@
+@{
+    ViewData["Title"] = "Menu";
+}
+<link rel="stylesheet" href="@Url.Content("~/css/Menu.css")" />
+<div class="container">
+    <div class="menu-grid" id="cardContainer">
+        <!-- Cards will be generated here -->
+    </div>
+</div>
+<script>
+    // Array of card data - easy to modify and extend
+    const cardsData = [
+        {
+            icon: "⚙️",
+            title: "Gestion des demandes",
+            subtitle: "",
+            color: "green"
+        },
+        {
+            icon: "📁",
+            title: "Demandes classées",
+            subtitle: "",
+            color: "orange"
+        },
+        {
+            icon: "📊",
+            title: "Mes tâches",
+            subtitle: "",
+            color: "teal"
+        },
+        {
+            icon: "👁️",
+            title: "Guide utilisateur",
+            subtitle: "",
+            color: "pink"
+        },
+        {
+            icon: "👤",
+            title: "Profil",
+            subtitle: "",
+            color: "blue"
+        },
+        {
+            icon: "⚙️",
+            title: "Parametrage",
+            subtitle: "",
+            color: "purple"
+        }
+    ];
+
+    // Function to generate cards dynamically
+    function generateCards() {
+        const container = document.getElementById('cardContainer');
+        cardsData.forEach(card => {
+            const cardElement = document.createElement('div');
+            cardElement.className = 'card';
+            cardElement.onclick = () => handleCardClick(card.title);
+            cardElement.innerHTML = `
+                <div class="icon ${card.color}">
+                    ${card.icon}
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">${card.title}</h3>
+                    ${card.subtitle ? `<p class="card-subtitle">${card.subtitle}</p>` : ''}
+                </div>
+            `;
+            container.appendChild(cardElement);
+        });
+    }
+
+    // Function to handle card clicks
+    function handleCardClick(title) {
+        console.log('Card clicked:', title); // Debug log
+        if (title === "Gestion des demandes") {
+            window.location.href = '/Tickets/GestionDemandes';
+        } else if (title === "Mes tâches") {
+            window.location.href = '/Tasks/MesTaches';
+        } else if (title === "Demandes classées") {
+            console.log('Navigating to DemandeClasses'); // Debug log
+            window.location.href = '/DemandeClasses/Index';
+        } else if (title === "Guide utilisateur") {
+            window.location.href = '/Guide/Index';
+        } else if (title === "Profil") {
+            window.location.href = '/Profile/Index';
+        } else if (title === "Parametrage") {
+            window.location.href = '/Settings/Index';
+        } else {
+            alert(`Clicked on: ${title}`);
+        }
+        // Add your custom logic here
+    }
+
+    // Generate cards when page loads
+    document.addEventListener('DOMContentLoaded', generateCards);
+
+    // Example function to add new cards dynamically
+    function addNewCard(icon, title, subtitle = "", color = "blue") {
+        cardsData.push({
+            icon: icon,
+            title: title,
+            subtitle: subtitle,
+            color: color
+        });
+        // Clear container and regenerate
+        document.getElementById('cardContainer').innerHTML = '';
+        generateCards();
+    }
+    // Example usage: addNewCard("🔧", "New Feature", "Description here", "green");
+</script>
