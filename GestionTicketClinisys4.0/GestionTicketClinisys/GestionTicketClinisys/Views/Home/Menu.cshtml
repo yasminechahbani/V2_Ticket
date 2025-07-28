@@ -2,7 +2,49 @@
     ViewData["Title"] = "Menu";
 }
 <link rel="stylesheet" href="@Url.Content("~/css/Menu.css")" />
-<div class="container">
+<!-- Ensure FontAwesome is loaded -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<!-- Header with user info and logout button -->
+<div class="menu-header" style="position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 15px 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <!-- Left side: Welcome message -->
+        <div style="color: white;">
+            <h4 style="margin: 0; font-weight: bold;">
+                <i class="fas fa-home me-2"></i>Dashboard
+            </h4>
+            <small style="opacity: 0.9;">
+                Welcome back, @ViewBag.UserName (@ViewBag.UserRole)
+            </small>
+        </div>
+
+        <!-- Right side: Logout button -->
+        <div>
+            <form method="post" action="@Url.Action("Logout", "Home")" style="display: inline;">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="logout-btn" style="
+                    background: rgba(255, 255, 255, 0.2);
+                    border: 2px solid rgba(255, 255, 255, 0.3);
+                    color: white;
+                    padding: 10px 20px;
+                    border-radius: 25px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                " onmouseover="this.style.background='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)';" onmouseout="this.style.background='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Main content with top margin to account for fixed header -->
+<div class="container" style="margin-top: 100px;">
     <div class="menu-grid" id="cardContainer">
         <!-- Cards will be generated here -->
     </div>
